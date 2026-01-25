@@ -1,10 +1,10 @@
-# Privacy Policy for GoLogger Places
+# Privacy Policy for GoPlaces
 
-**Last updated: January 25, 2026**
+**Last updated: January 24, 2026**
 
 ## Overview
 
-GoLogger Places ("the App") is a personal location and trail tracking app developed by GoLogger. This policy explains what data the App collects and how it's used.
+GoPlaces ("the App") is a personal location and trail tracking app developed by GoLogger. This policy explains what data the App collects and how it's used.
 
 ## Data Collection
 
