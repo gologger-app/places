@@ -92,7 +92,6 @@ struct SampleDataGenerator {
             // Embarcadero waterfront walk
             createTrail(
                 name: "Embarcadero Morning Walk",
-                travelMode: .walking,
                 hexColor: "#FF6B35",
                 points: generateTrailFromWaypoints(
                     waypoints: embarcaderoWalkWaypoints,
@@ -103,7 +102,6 @@ struct SampleDataGenerator {
             // Golden Gate Park bike ride
             createTrail(
                 name: "Golden Gate Park Ride",
-                travelMode: .biking,
                 hexColor: "#4ECDC4",
                 points: generateTrailFromWaypoints(
                     waypoints: goldenGateParkBikeWaypoints,
@@ -114,7 +112,6 @@ struct SampleDataGenerator {
             // Lands End trail hike
             createTrail(
                 name: "Lands End Trail",
-                travelMode: .walking,
                 hexColor: "#2ECC71",
                 points: generateTrailFromWaypoints(
                     waypoints: landsEndTrailWaypoints,
@@ -125,7 +122,6 @@ struct SampleDataGenerator {
             // Dolores Park to Castro walk
             createTrail(
                 name: "Mission to Castro Walk",
-                travelMode: .walking,
                 hexColor: "#9B59B6",
                 points: generateTrailFromWaypoints(
                     waypoints: missionToCastroWaypoints,
@@ -136,7 +132,6 @@ struct SampleDataGenerator {
             // Marina to Golden Gate bike
             createTrail(
                 name: "Marina to Bridge Ride",
-                travelMode: .biking,
                 hexColor: "#E74C3C",
                 points: generateTrailFromWaypoints(
                     waypoints: marinaToBridgeWaypoints,
@@ -208,12 +203,11 @@ struct SampleDataGenerator {
     /// Create a trail with points and collections
     private static func createTrail(
         name: String,
-        travelMode: TravelMode,
         hexColor: String,
         points: [TrailPoint],
         collections: [Collection]
     ) -> Trail {
-        let trail = Trail(travelMode: travelMode, hexColor: hexColor)
+        let trail = Trail(hexColor: hexColor)
         trail.name = name
         trail.points = points
         trail.collections = collections
