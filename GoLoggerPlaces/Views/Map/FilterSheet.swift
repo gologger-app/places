@@ -6,7 +6,7 @@ struct MapFilters {
     var searchText: String = ""
     var selectedTravelModes: Set<TravelMode> = []
     var showVenues: Bool = true
-    var showTrails: Bool = false
+    var showTrails: Bool = true
     var dateRange: DateRange?
     var selectedCollectionID: UUID?
 
@@ -14,7 +14,7 @@ struct MapFilters {
         !searchText.isEmpty ||
         !selectedTravelModes.isEmpty ||
         !showVenues ||
-        showTrails ||
+        !showTrails ||
         dateRange != nil ||
         selectedCollectionID != nil
     }
@@ -23,7 +23,7 @@ struct MapFilters {
         var count = 0
         if !searchText.isEmpty { count += 1 }
         if !selectedTravelModes.isEmpty { count += 1 }
-        if !showVenues || showTrails { count += 1 }
+        if !showVenues || !showTrails { count += 1 }
         if dateRange != nil { count += 1 }
         if selectedCollectionID != nil { count += 1 }
         return count
@@ -33,7 +33,7 @@ struct MapFilters {
         searchText = ""
         selectedTravelModes = []
         showVenues = true
-        showTrails = false
+        showTrails = true
         dateRange = nil
         selectedCollectionID = nil
     }
