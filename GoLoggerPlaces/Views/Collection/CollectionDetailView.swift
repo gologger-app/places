@@ -357,7 +357,7 @@ struct TrailSummaryView: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            Image(systemName: trail.travelMode.iconName)
+            Image(systemName: "figure.walk")
                 .font(.system(size: 24))
                 .foregroundStyle(.blue)
 

@@ -89,20 +89,6 @@ struct TrailEditView: View {
                         .fontWeight(.medium)
                 }
 
-                Picker("Travel Mode", selection: Binding(
-                    get: { trail.travelMode },
-                    set: { newValue in
-                        trail.travelMode = newValue
-                        trail.editDate = Date()
-                        try? modelContext.save()
-                    }
-                )) {
-                    ForEach(TravelMode.allCases, id: \.self) { mode in
-                        Label(mode.displayName, systemImage: mode.iconName)
-                            .tag(mode)
-                    }
-                }
-
                 HStack {
                     Text("Distance")
                         .foregroundStyle(.secondary)

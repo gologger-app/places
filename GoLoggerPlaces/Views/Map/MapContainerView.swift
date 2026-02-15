@@ -426,21 +426,7 @@ struct MapContainerView: View {
         }
 
         // Apply filters manually to avoid SwiftData's Predicate filter
-        var filteredTrails: [Trail] = []
-        for trail in baseTrails {
-            var shouldInclude = true
-
-            // Travel mode filter
-            if !filters.selectedTravelModes.isEmpty {
-                if !filters.selectedTravelModes.contains(trail.travelMode) {
-                    shouldInclude = false
-                }
-            }
-
-            if shouldInclude {
-                filteredTrails.append(trail)
-            }
-        }
+        var filteredTrails: [Trail] = baseTrails
 
         return filteredTrails
     }

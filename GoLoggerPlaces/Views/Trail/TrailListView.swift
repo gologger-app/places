@@ -27,7 +27,6 @@ struct TrailListView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var trails: [Trail]
 
-    @State private var filterTravelMode: TravelMode?
     @State private var searchText = ""
     @State private var sortOption: TrailSortOption = .createdOn
 
@@ -44,48 +43,18 @@ struct TrailListView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
-                    Menu {
-                        Button(action: { filterTravelMode = nil }) {
+                    ForEach(TrailSortOption.allCases, id: \.self) { option in
+                        Button(action: { sortOption = option }) {
                             HStack {
-                                Text("All")
-                                if filterTravelMode == nil {
+                                Label(option.rawValue, systemImage: option.systemImage)
+                                if sortOption == option {
                                     Image(systemName: "checkmark")
                                 }
                             }
                         }
-
-                        ForEach(TravelMode.allCases, id: \.self) { mode in
-                            Button(action: { filterTravelMode = mode }) {
-                                HStack {
-                                    Text(mode.displayName)
-                                    if filterTravelMode == mode {
-                                        Image(systemName: "checkmark")
-                                    }
-                                }
-                            }
-                        }
-                    } label: {
-                        Label("Filter by Type", systemImage: "line.3.horizontal.decrease.circle")
-                    }
-
-                    Divider()
-
-                    Menu {
-                        ForEach(TrailSortOption.allCases, id: \.self) { option in
-                            Button(action: { sortOption = option }) {
-                                HStack {
-                                    Label(option.rawValue, systemImage: option.systemImage)
-                                    if sortOption == option {
-                                        Image(systemName: "checkmark")
-                                    }
-                                }
-                            }
-                        }
-                    } label: {
-                        Label("Sort", systemImage: "arrow.up.arrow.down")
                     }
                 } label: {
-                    Image(systemName: "ellipsis.circle")
+                    Image(systemName: "arrow.up.arrow.down")
                 }
             }
         }
@@ -124,19 +93,12 @@ struct TrailListView: View {
     private var filteredTrails: [Trail] {
         var filtered = trails
 
-        // Filter by travel mode
-        if let mode = filterTravelMode {
-            filtered = filtered.filter { $0.travelMode == mode }
-        }
-
         // Filter by search text
         if !searchText.isEmpty {
             let searchLower = searchText.lowercased()
             filtered = filtered.filter { trail in
                 // Search by trail name
                 (trail.name?.lowercased().contains(searchLower) ?? false) ||
-                // Search by travel mode name
-                trail.travelMode.displayName.lowercased().contains(searchLower) ||
                 // Search by collection names
                 trail.collections.contains(where: { $0.name.lowercased().contains(searchLower) })
             }
@@ -178,7 +140,7 @@ struct TrailRowListView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Image(systemName: trail.travelMode.iconName)
+                Image(systemName: "figure.walk")
                     .foregroundStyle(.blue)
 
                 Text(trail.displayName)

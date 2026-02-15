@@ -4,7 +4,6 @@ import SwiftData
 /// Filter options for map display
 struct MapFilters {
     var searchText: String = ""
-    var selectedTravelModes: Set<TravelMode> = []
     var showVenues: Bool = true
     var showTrails: Bool = true
     var dateRange: DateRange?
@@ -12,7 +11,6 @@ struct MapFilters {
 
     var isActive: Bool {
         !searchText.isEmpty ||
-        !selectedTravelModes.isEmpty ||
         !showVenues ||
         !showTrails ||
         dateRange != nil ||
@@ -22,7 +20,6 @@ struct MapFilters {
     var activeFilterCount: Int {
         var count = 0
         if !searchText.isEmpty { count += 1 }
-        if !selectedTravelModes.isEmpty { count += 1 }
         if !showVenues || !showTrails { count += 1 }
         if dateRange != nil { count += 1 }
         if selectedCollectionID != nil { count += 1 }
@@ -31,7 +28,6 @@ struct MapFilters {
 
     mutating func reset() {
         searchText = ""
-        selectedTravelModes = []
         showVenues = true
         showTrails = true
         dateRange = nil
@@ -74,27 +70,6 @@ struct FilterSheet: View {
                 Section("Search") {
                     TextField("Search trips, venues...", text: $filters.searchText)
                         .textInputAutocapitalization(.never)
-                }
-
-                // Travel Modes
-                Section("Travel Modes") {
-                    ForEach(TravelMode.allCases, id: \.self) { mode in
-                        Toggle(isOn: Binding(
-                            get: { filters.selectedTravelModes.contains(mode) },
-                            set: { isSelected in
-                                if isSelected {
-                                    filters.selectedTravelModes.insert(mode)
-                                } else {
-                                    filters.selectedTravelModes.remove(mode)
-                                }
-                            }
-                        )) {
-                            HStack {
-                                Image(systemName: mode.iconName)
-                                Text(mode.displayName)
-                            }
-                        }
-                    }
                 }
 
                 // Clear Filters
