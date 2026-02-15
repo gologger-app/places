@@ -155,9 +155,8 @@ class ImportExportManager {
 
         // Import Trails with nested points, waypoints, and links
         for trailExport in exportData.trails {
-            let travelMode = TravelMode(rawValue: trailExport.travelModeRaw) ?? .walking
+            // Read travelModeRaw for backward compatibility but don't use it
             let trail = Trail(
-                travelMode: travelMode,
                 hexColor: trailExport.hexColor
             )
             trail.name = trailExport.name

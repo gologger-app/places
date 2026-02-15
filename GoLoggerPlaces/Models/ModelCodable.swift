@@ -271,7 +271,7 @@ extension Trail {
         return TrailExport(
             id: id,
             name: name,
-            travelModeRaw: travelModeRaw,
+            travelModeRaw: "walking",  // Default for backward compatibility
             totalDistance: totalDistance,
             actualDuration: actualDuration,
             startTime: startTime,

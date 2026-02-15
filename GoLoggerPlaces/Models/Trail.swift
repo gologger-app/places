@@ -7,7 +7,6 @@ import CoreLocation
 final class Trail {
     var id: UUID
     var name: String?  // Optional custom name for the trail
-    var travelModeRaw: String  // Stored as String, computed to TravelMode
     var createdOn: Date
     var editDate: Date
     var hexColor: String = "#007AFF"  // Hex color for trail visualization (default: system blue for existing trails)
@@ -36,25 +35,13 @@ final class Trail {
     var links: [Link] = []
 
     init(
-        travelMode: TravelMode = .walking,
         hexColor: String? = nil
     ) {
         self.id = UUID()
-        self.travelModeRaw = travelMode.rawValue
         self.createdOn = Date()
         self.editDate = Date()
         // Use provided color, or generate a random one for new trails
         self.hexColor = hexColor ?? Trail.generateRandomHexColor()
-    }
-
-    /// Computed property for travel mode
-    var travelMode: TravelMode {
-        get {
-            TravelMode(rawValue: travelModeRaw) ?? .walking
-        }
-        set {
-            travelModeRaw = newValue.rawValue
-        }
     }
 
     /// Start time from first trail point (uses cached value for performance)
