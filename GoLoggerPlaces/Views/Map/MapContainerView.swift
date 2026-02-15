@@ -113,8 +113,8 @@ struct MapContainerView: View {
                 NavigationStack {
                     TrailSetupView(
                         collections: collections,
-                        onStart: { collection, travelMode in
-                            startRecording(for: collection, travelMode: travelMode)
+                        onStart: { collection in
+                            startRecording(for: collection)
                         }
                     )
                 }
@@ -530,7 +530,7 @@ struct MapContainerView: View {
         }
     }
 
-    private func startRecording(for collection: Collection?, travelMode: TravelMode) {
+    private func startRecording(for collection: Collection?) {
         guard let viewModel = recordingViewModel else {
             recordingErrorMessage = "Recording system not initialized. Please try again."
             showRecordingErrorAlert = true
@@ -561,7 +561,7 @@ struct MapContainerView: View {
         }
 
         // Start recording
-        viewModel.startRecording(collection: collection, travelMode: travelMode)
+        viewModel.startRecording(collection: collection)
 
         // Verify recording actually started
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {

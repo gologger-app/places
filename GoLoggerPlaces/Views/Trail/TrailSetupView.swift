@@ -1,16 +1,15 @@
 import SwiftUI
 import SwiftData
 
-/// Pre-recording setup sheet for selecting collection and travel mode
+/// Pre-recording setup sheet for selecting collection
 struct TrailSetupView: View {
     let collections: [Collection]
-    let onStart: (Collection?, TravelMode) -> Void
+    let onStart: (Collection?) -> Void
 
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
 
     @State private var selectedCollectionID: UUID?
-    @State private var selectedTravelMode: TravelMode = .walking
 
     var body: some View {
         Form {
@@ -46,31 +45,6 @@ struct TrailSetupView: View {
                         .font(.caption)
                 }
 
-                Section("Travel Mode") {
-                    Picker("Mode", selection: $selectedTravelMode) {
-                        ForEach(TravelMode.allCases, id: \.self) { mode in
-                            HStack {
-                                Image(systemName: mode.iconName)
-                                Text(mode.displayName)
-                            }
-                            .tag(mode)
-                        }
-                    }
-                    .pickerStyle(.inline)
-
-                    // Info about selected mode
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Location Sampling")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-
-                        Text(samplingInfo)
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
-                    }
-                    .padding(.vertical, 4)
-                }
-
                 Section {
                     Button(action: startRecording) {
                         HStack {
@@ -97,19 +71,6 @@ struct TrailSetupView: View {
                !collections.contains(where: { $0.id == selectedID }) {
                 selectedCollectionID = nil
             }
-        }
-    }
-
-    // MARK: - Computed Properties
-
-    private var samplingInfo: String {
-        switch selectedTravelMode {
-        case .walking:
-            return "Updates every 5-10 seconds • Best for hiking and walking"
-        case .biking:
-            return "Updates every 3-5 seconds • Optimized for cycling"
-        case .driving:
-            return "Updates every 2-3 seconds • Best for driving routes"
         }
     }
 
@@ -151,7 +112,7 @@ struct TrailSetupView: View {
             print("ℹ️ No collection selected - recording trail without collection")
         }
 
-        onStart(collection, selectedTravelMode)
+        onStart(collection)
         dismiss()
     }
 }
@@ -163,7 +124,7 @@ struct TrailSetupView: View {
                 Collection(name: "Weekend Trip"),
                 Collection(name: "Day Hike")
             ],
-            onStart: { _, _ in }
+            onStart: { _ in }
         )
     }
     .modelContainer(for: [Collection.self, Trail.self], inMemory: true)
