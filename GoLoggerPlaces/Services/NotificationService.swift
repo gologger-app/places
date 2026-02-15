@@ -38,7 +38,7 @@ class NotificationService: ObservableObject {
 
     // MARK: - Recording Notifications
 
-    func showRecordingNotification(tripName: String, travelMode: TravelMode, distance: Double, duration: TimeInterval) {
+    func showRecordingNotification(tripName: String, distance: Double, duration: TimeInterval) {
         // Ensure we have permission
         guard isAuthorized else {
             print("Notification not authorized")
@@ -48,7 +48,7 @@ class NotificationService: ObservableObject {
         // Create notification content
         let content = UNMutableNotificationContent()
         content.title = "Recording Active"
-        content.body = formatNotificationBody(tripName: tripName, travelMode: travelMode, distance: distance, duration: duration)
+        content.body = formatNotificationBody(tripName: tripName, distance: distance, duration: duration)
         content.sound = nil // Silent notification to avoid disturbing
         content.categoryIdentifier = "RECORDING_CATEGORY"
         content.interruptionLevel = .passive // Low priority, won't break through Focus modes
@@ -68,9 +68,9 @@ class NotificationService: ObservableObject {
         }
     }
 
-    func updateRecordingNotification(tripName: String, travelMode: TravelMode, distance: Double, duration: TimeInterval) {
+    func updateRecordingNotification(tripName: String, distance: Double, duration: TimeInterval) {
         // This will replace the existing notification with the same ID
-        showRecordingNotification(tripName: tripName, travelMode: travelMode, distance: distance, duration: duration)
+        showRecordingNotification(tripName: tripName, distance: distance, duration: duration)
     }
 
     func clearRecordingNotification() {
@@ -81,13 +81,12 @@ class NotificationService: ObservableObject {
 
     // MARK: - Helper Methods
 
-    private func formatNotificationBody(tripName: String, travelMode: TravelMode, distance: Double, duration: TimeInterval) -> String {
+    private func formatNotificationBody(tripName: String, distance: Double, duration: TimeInterval) -> String {
         let distanceKm = distance / 1000.0
         let distanceStr = String(format: "%.2f km", distanceKm)
         let durationStr = formatDuration(duration)
-        let modeEmoji = travelMode.emoji
 
-        return "\(modeEmoji) \(tripName) • \(distanceStr) • \(durationStr)"
+        return "\(tripName) • \(distanceStr) • \(durationStr)"
     }
 
     private func formatDuration(_ duration: TimeInterval) -> String {
@@ -99,20 +98,6 @@ class NotificationService: ObservableObject {
             return String(format: "%d:%02d:%02d", hours, minutes, seconds)
         } else {
             return String(format: "%d:%02d", minutes, seconds)
-        }
-    }
-}
-
-// MARK: - TravelMode Extension
-extension TravelMode {
-    var emoji: String {
-        switch self {
-        case .walking:
-            return "🚶"
-        case .biking:
-            return "🚴"
-        case .driving:
-            return "🚗"
         }
     }
 }

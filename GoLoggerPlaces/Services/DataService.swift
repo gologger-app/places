@@ -125,10 +125,9 @@ class DataService {
     @discardableResult
     func createTrail(
         locations: [CLLocation],
-        travelMode: TravelMode = .walking,
         collections: [Collection] = []
     ) -> Trail {
-        let trail = Trail(travelMode: travelMode)
+        let trail = Trail()
 
         // Create trail points from locations
         for location in locations {

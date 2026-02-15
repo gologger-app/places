@@ -28,7 +28,6 @@ class TrailRecordingViewModel: ObservableObject {
     private let locationService: LocationService
     private let modelContext: ModelContext
     private let notificationService = NotificationService.shared
-    private var currentTravelMode: TravelMode = .walking
     private var timer: AnyCancellable?
     private var recordingStartTime: Date?
     private var totalPausedTime: TimeInterval = 0
@@ -44,11 +43,10 @@ class TrailRecordingViewModel: ObservableObject {
     // MARK: - Recording Control
 
     /// Start recording a trail (optionally for a collection)
-    func startRecording(collection: Collection?, travelMode: TravelMode = .walking) {
+    func startRecording(collection: Collection?) {
         guard !isRecording else { return }
 
         currentCollection = collection
-        currentTravelMode = travelMode
         recordingStartTime = Date()
         isRecording = true
         isPaused = false
@@ -70,7 +68,6 @@ class TrailRecordingViewModel: ObservableObject {
             await MainActor.run {
                 notificationService.showRecordingNotification(
                     tripName: tripName,
-                    travelMode: travelMode,
                     distance: 0,
                     duration: 0
                 )
@@ -158,7 +155,6 @@ class TrailRecordingViewModel: ObservableObject {
         let collections = currentCollection.map { [$0] } ?? []  // Convert optional to array
         let trail = dataService.createTrail(
             locations: locations,
-            travelMode: currentTravelMode,
             collections: collections
         )
 
@@ -193,7 +189,6 @@ class TrailRecordingViewModel: ObservableObject {
 
     private func resetState() {
         currentCollection = nil
-        currentTravelMode = .walking
         recordingStartTime = nil
         elapsedTime = 0
         totalDistance = 0
@@ -238,7 +233,6 @@ class TrailRecordingViewModel: ObservableObject {
         let tripName = currentCollection?.name ?? "Trail Recording"
         notificationService.updateRecordingNotification(
             tripName: tripName,
-            travelMode: currentTravelMode,
             distance: totalDistance,
             duration: elapsedTime
         )
