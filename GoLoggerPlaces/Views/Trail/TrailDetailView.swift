@@ -64,9 +64,6 @@ struct TrailDetailView: View {
         os_log("📱 TrailDetailView.body rendering", log: performanceLog, type: .debug)
         return ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                // Travel Mode Badge
-                travelModeHeader
-
                 // Map Preview
                 mapPreview
 
@@ -207,18 +204,6 @@ struct TrailDetailView: View {
     }
 
     // MARK: - Subviews
-
-    private var travelModeHeader: some View {
-        HStack {
-            Image(systemName: trail.travelMode.iconName)
-                .font(.title2)
-                .foregroundStyle(.blue)
-
-            Text(trail.travelMode.displayName)
-                .font(.title3)
-                .fontWeight(.semibold)
-        }
-    }
 
     private var mapPreview: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -1478,7 +1463,7 @@ struct StatCard: View {
 
 #Preview {
     NavigationStack {
-        TrailDetailView(trail: Trail(travelMode: .walking))
+        TrailDetailView(trail: Trail())
             .modelContainer(for: [Trail.self, TrailPoint.self], inMemory: true)
     }
 }

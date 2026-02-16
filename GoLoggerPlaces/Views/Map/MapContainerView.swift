@@ -426,7 +426,7 @@ struct MapContainerView: View {
         }
 
         // Apply filters manually to avoid SwiftData's Predicate filter
-        var filteredTrails: [Trail] = baseTrails
+        let filteredTrails: [Trail] = baseTrails
 
         return filteredTrails
     }

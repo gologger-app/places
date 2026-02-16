@@ -584,7 +584,6 @@ struct ComparisonRow: View {
 }
 
 #Preview {
-    let trail = Trail(travelMode: .walking)
-    return TrailTrimView(trail: trail, onTrimComplete: {})
+    TrailTrimView(trail: Trail(), onTrimComplete: {})
         .modelContainer(for: [Trail.self, TrailPoint.self], inMemory: true)
 }

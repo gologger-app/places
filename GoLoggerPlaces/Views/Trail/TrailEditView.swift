@@ -155,7 +155,7 @@ struct TrailEditView: View {
 
 #Preview {
     NavigationStack {
-        TrailEditView(trail: Trail(travelMode: .walking))
+        TrailEditView(trail: Trail())
             .modelContainer(for: [Trail.self, TrailPoint.self], inMemory: true)
     }
 }

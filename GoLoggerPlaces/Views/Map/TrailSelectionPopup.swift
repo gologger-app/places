@@ -17,10 +17,12 @@ struct TrailSelectionPopup: View {
                             .lineLimit(2)
 
                         HStack(spacing: 4) {
-                            Image(systemName: trail.travelMode.iconName)
+                            Image(systemName: "figure.walk")
                                 .font(.system(size: 10))
-                            Text(trail.travelMode.displayName)
-                                .font(.system(size: 10))
+                            if let distance = trail.totalDistance {
+                                Text(MeasurementFormatter.formatDistance(distance))
+                                    .font(.system(size: 10))
+                            }
                         }
                         .foregroundColor(.secondary)
                     }
@@ -65,10 +67,12 @@ struct TrailSelectionPopup: View {
                                                 .lineLimit(1)
 
                                             HStack(spacing: 4) {
-                                                Image(systemName: trail.travelMode.iconName)
+                                                Image(systemName: "figure.walk")
                                                     .font(.system(size: 9))
-                                                Text(trail.travelMode.displayName)
-                                                    .font(.system(size: 9))
+                                                if let distance = trail.totalDistance {
+                                                    Text(MeasurementFormatter.formatDistance(distance))
+                                                        .font(.system(size: 9))
+                                                }
                                             }
                                             .foregroundColor(.secondary)
                                         }
@@ -129,10 +133,7 @@ struct TrailSelectionPopup: View {
 
 extension Trail {
     static func preview() -> Trail {
-        let trail = Trail(
-            travelMode: .biking,
-            hexColor: "#FF5733"
-        )
+        let trail = Trail(hexColor: "#FF5733")
         trail.name = "Morning Bike Ride in Central Park"
         return trail
     }
