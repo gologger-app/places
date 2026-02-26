@@ -7,7 +7,6 @@ struct TrailSetupView: View {
     let onStart: (Collection?) -> Void
 
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.modelContext) private var modelContext
 
     @State private var selectedCollectionID: UUID?
 
@@ -29,20 +28,6 @@ struct TrailSetupView: View {
                             .tag(collection.id as UUID?)
                         }
                     }
-                }
-
-                Section {
-                    Button(action: {
-                        createNewCollection()
-                    }) {
-                        HStack {
-                            Image(systemName: "plus.circle.fill")
-                            Text("Create New Collection")
-                        }
-                    }
-                } footer: {
-                    Text("Creates a new collection with a default name that you can edit later. Trail can be recorded without a collection.")
-                        .font(.caption)
                 }
 
                 Section {
@@ -75,27 +60,6 @@ struct TrailSetupView: View {
     }
 
     // MARK: - Actions
-
-    @discardableResult
-    private func createNewCollection() -> Collection {
-        // Generate default name with current date/time
-        let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .short
-        let dateString = formatter.string(from: Date())
-        let defaultName = "Collection - \(dateString)"
-
-        // Create new collection
-        let newCollection = Collection(name: defaultName)
-        modelContext.insert(newCollection)
-        try? modelContext.save()
-
-        // Note: We don't set selectedCollectionID here because the collections array
-        // is a snapshot and doesn't include this new collection yet.
-        // This would cause a Picker warning about invalid selection.
-
-        return newCollection
-    }
 
     private func startRecording() {
         // Determine which collection to use (if any)
