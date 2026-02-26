@@ -20,7 +20,7 @@ class TrailRecordingViewModel: ObservableObject {
     @Published var totalDistance: Double = 0  // In meters
     @Published var pointCount: Int = 0
     @Published var waypointCount: Int = 0  // Number of waypoints added during recording
-    @Published var currentCollection: Collection?  // Exposed for filtering map during recording
+    @Published var currentCollections: [Collection] = []  // Exposed for filtering map during recording
     @Published var showingWaypointAdd: Bool = false  // For showing waypoint creation sheet
     @Published var showWaypointCreatedFeedback: Bool = false  // For showing confirmation
     @Published var suggestedWaypointLabel: String = ""  // Suggested label for new waypoint
@@ -42,11 +42,11 @@ class TrailRecordingViewModel: ObservableObject {
 
     // MARK: - Recording Control
 
-    /// Start recording a trail (optionally for a collection)
-    func startRecording(collection: Collection?) {
+    /// Start recording a trail (optionally for collections)
+    func startRecording(collections: [Collection]) {
         guard !isRecording else { return }
 
-        currentCollection = collection
+        currentCollections = collections
         recordingStartTime = Date()
         isRecording = true
         isPaused = false
@@ -64,7 +64,7 @@ class TrailRecordingViewModel: ObservableObject {
                 _ = await notificationService.requestAuthorization()
             }
             // Show initial recording notification
-            let tripName = collection?.name ?? "Trail Recording"
+            let tripName = collections.first?.name ?? "Trail Recording"
             await MainActor.run {
                 notificationService.showRecordingNotification(
                     tripName: tripName,
@@ -152,10 +152,9 @@ class TrailRecordingViewModel: ObservableObject {
 
         // Create trail with recorded locations
         let dataService = DataService(modelContext: modelContext)
-        let collections = currentCollection.map { [$0] } ?? []  // Convert optional to array
         let trail = dataService.createTrail(
             locations: locations,
-            collections: collections
+            collections: currentCollections
         )
 
         // Create and attach waypoints to the trail
@@ -188,7 +187,7 @@ class TrailRecordingViewModel: ObservableObject {
     }
 
     private func resetState() {
-        currentCollection = nil
+        currentCollections = []
         recordingStartTime = nil
         elapsedTime = 0
         totalDistance = 0
@@ -230,7 +229,7 @@ class TrailRecordingViewModel: ObservableObject {
     }
 
     private func updateNotification() {
-        let tripName = currentCollection?.name ?? "Trail Recording"
+        let tripName = currentCollections.first?.name ?? "Trail Recording"
         notificationService.updateRecordingNotification(
             tripName: tripName,
             distance: totalDistance,

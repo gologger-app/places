@@ -4,42 +4,71 @@ import SwiftData
 /// Pre-recording setup sheet for selecting collection
 struct TrailSetupView: View {
     let collections: [Collection]
-    let onStart: (Collection?) -> Void
+    let onStart: ([Collection]) -> Void
 
     @Environment(\.dismiss) private var dismiss
 
-    @State private var selectedCollectionID: UUID?
+    @State private var selectedCollections: [Collection] = []
+    @State private var showCollectionSelectionSheet = false
 
     var body: some View {
         Form {
-                Section("Select Collection (Optional)") {
-                    Picker("Collection", selection: $selectedCollectionID) {
-                        Text("No collection")
-                            .tag(nil as UUID?)
+            Section {
+                Button(action: { showCollectionSelectionSheet = true }) {
+                    HStack(spacing: 12) {
+                        Image(systemName: selectedCollections.isEmpty ? "folder.badge.plus" : "folder.fill")
+                            .foregroundStyle(selectedCollections.isEmpty ? Color.secondary : Color.blue)
+                            .frame(width: 24)
 
-                        ForEach(collections) { collection in
-                            HStack {
-                                Text(collection.name)
-                                if !collection.trails.isEmpty {
-                                    Text("(\(collection.trailCount))")
-                                        .foregroundStyle(.secondary)
-                                }
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(selectedCollections.isEmpty ? "Add to Collection" : "Collections")
+                                .foregroundStyle(.primary)
+
+                            if !selectedCollections.isEmpty {
+                                Text("\(selectedCollections.count) selected")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
                             }
-                            .tag(collection.id as UUID?)
                         }
+
+                        Spacer()
+
+                        Image(systemName: "chevron.right")
+                            .foregroundStyle(.tertiary)
+                            .font(.caption)
                     }
+                    .padding(.vertical, 4)
                 }
 
-                Section {
-                    Button(action: startRecording) {
-                        HStack {
-                            Spacer()
-                            Label("Start Recording", systemImage: "record.circle.fill")
-                                .font(.headline)
-                            Spacer()
+                if !selectedCollections.isEmpty {
+                    ForEach(selectedCollections) { collection in
+                        HStack(spacing: 12) {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundStyle(.blue)
+                                .font(.caption)
+
+                            Text(collection.name)
+                                .font(.subheadline)
                         }
+                        .padding(.leading, 36)
                     }
                 }
+            } header: {
+                Text("Organization (Optional)")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            Section {
+                Button(action: startRecording) {
+                    HStack {
+                        Spacer()
+                        Label("Start Recording", systemImage: "record.circle.fill")
+                            .font(.headline)
+                        Spacer()
+                    }
+                }
+            }
         }
         .navigationTitle("Record Trail")
         .navigationBarTitleDisplayMode(.inline)
@@ -50,11 +79,15 @@ struct TrailSetupView: View {
                 }
             }
         }
-        .onAppear {
-            // Clear invalid selection if the selected collection isn't in the collections array
-            if let selectedID = selectedCollectionID,
-               !collections.contains(where: { $0.id == selectedID }) {
-                selectedCollectionID = nil
+        .sheet(isPresented: $showCollectionSelectionSheet) {
+            NavigationStack {
+                CollectionSelectionSheet(
+                    selectedCollections: selectedCollections,
+                    availableCollections: collections,
+                    onSave: { newSelection in
+                        selectedCollections = newSelection
+                    }
+                )
             }
         }
     }
@@ -62,21 +95,13 @@ struct TrailSetupView: View {
     // MARK: - Actions
 
     private func startRecording() {
-        // Determine which collection to use (if any)
-        let collection: Collection?
-
-        if let collectionID = selectedCollectionID,
-           let existingCollection = collections.first(where: { $0.id == collectionID }) {
-            // Use selected existing collection
-            collection = existingCollection
-            print("✅ Using selected collection: \(existingCollection.name)")
+        if selectedCollections.isEmpty {
+            print("ℹ️ No collections selected - recording trail without collections")
         } else {
-            // No collection selected - record without collection
-            collection = nil
-            print("ℹ️ No collection selected - recording trail without collection")
+            print("✅ Using \(selectedCollections.count) collection(s): \(selectedCollections.map { $0.name }.joined(separator: ", "))")
         }
 
-        onStart(collection)
+        onStart(selectedCollections)
         dismiss()
     }
 }
@@ -86,7 +111,8 @@ struct TrailSetupView: View {
         TrailSetupView(
             collections: [
                 Collection(name: "Weekend Trip"),
-                Collection(name: "Day Hike")
+                Collection(name: "Day Hike"),
+                Collection(name: "City Tour")
             ],
             onStart: { _ in }
         )

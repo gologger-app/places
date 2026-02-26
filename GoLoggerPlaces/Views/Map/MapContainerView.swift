@@ -113,8 +113,8 @@ struct MapContainerView: View {
                 NavigationStack {
                     TrailSetupView(
                         collections: collections,
-                        onStart: { collection in
-                            startRecording(for: collection)
+                        onStart: { collections in
+                            startRecording(for: collections)
                         }
                     )
                 }
@@ -369,10 +369,12 @@ struct MapContainerView: View {
     private var allVenues: [Venue] {
         guard filters.showVenues else { return [] }
 
-        // If recording, only show venues from the current collection
+        // If recording, only show venues from the current collections
         let baseVenues: [Venue]
-        if let recordingCollection = recordingViewModel?.currentCollection {
-            baseVenues = recordingCollection.venues
+        if let recordingCollections = recordingViewModel?.currentCollections, !recordingCollections.isEmpty {
+            // Show venues from all recording collections
+            let venueSet = Set(recordingCollections.flatMap { $0.venues })
+            baseVenues = Array(venueSet)
         } else if let selectedCollectionID = filters.selectedCollectionID {
             // Filter venues by selected collection
             baseVenues = allVenuesQuery.filter { venue in
@@ -411,10 +413,12 @@ struct MapContainerView: View {
     private var allTrails: [Trail] {
         guard filters.showTrails else { return [] }
 
-        // If recording, only show trails from the current collection
+        // If recording, only show trails from the current collections
         let baseTrails: [Trail]
-        if let recordingCollection = recordingViewModel?.currentCollection {
-            baseTrails = recordingCollection.trails
+        if let recordingCollections = recordingViewModel?.currentCollections, !recordingCollections.isEmpty {
+            // Show trails from all recording collections
+            let trailSet = Set(recordingCollections.flatMap { $0.trails })
+            baseTrails = Array(trailSet)
         } else if let selectedCollectionID = filters.selectedCollectionID {
             // Filter trails by selected collection
             baseTrails = allTrailsQuery.filter { trail in
@@ -516,7 +520,7 @@ struct MapContainerView: View {
         }
     }
 
-    private func startRecording(for collection: Collection?) {
+    private func startRecording(for collections: [Collection]) {
         guard let viewModel = recordingViewModel else {
             recordingErrorMessage = "Recording system not initialized. Please try again."
             showRecordingErrorAlert = true
@@ -547,7 +551,7 @@ struct MapContainerView: View {
         }
 
         // Start recording
-        viewModel.startRecording(collection: collection)
+        viewModel.startRecording(collections: collections)
 
         // Verify recording actually started
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
