@@ -935,6 +935,42 @@ struct TrailDetailView: View {
                 .font(.headline)
 
             VStack(spacing: 12) {
+                // Notes
+                if let notes = trail.notes, !notes.isEmpty {
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack {
+                            Image(systemName: "note.text")
+                                .foregroundStyle(.blue)
+                                .frame(width: 24)
+                            Text("Notes")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        }
+                        Text(notes)
+                            .font(.body)
+                            .foregroundStyle(.primary)
+                            .padding(.leading, 32)
+                    }
+                    .padding(.bottom, 4)
+                }
+
+                // Addresses
+                if let startAddress = trail.startAddress {
+                    DetailRow(
+                        label: "Start Location",
+                        value: startAddress,
+                        icon: "location.circle.fill"
+                    )
+                }
+
+                if let endAddress = trail.endAddress {
+                    DetailRow(
+                        label: "End Location",
+                        value: endAddress,
+                        icon: "mappin.circle.fill"
+                    )
+                }
+
                 if let startTime = trail.startTime {
                     DetailRow(
                         label: "Start Time",

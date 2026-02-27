@@ -79,6 +79,57 @@ struct TrailEditView: View {
                 Text("Appearance")
             }
 
+            // Notes Section
+            Section {
+                TextField("Add notes about this trail...", text: Binding(
+                    get: { trail.notes ?? "" },
+                    set: { newValue in
+                        trail.notes = newValue.isEmpty ? nil : newValue
+                        trail.editDate = Date()
+                    }
+                ), axis: .vertical)
+                .lineLimit(3...8)
+                .autocorrectionDisabled(false)
+            } header: {
+                Text("Notes")
+            }
+
+            // Addresses Section
+            Section {
+                VStack(alignment: .leading, spacing: 12) {
+                    if let startAddress = trail.startAddress {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Start Location")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                            Text(startAddress)
+                                .font(.subheadline)
+                        }
+                    } else {
+                        Text("Start location not available")
+                            .font(.subheadline)
+                            .foregroundStyle(.tertiary)
+                    }
+
+                    if let endAddress = trail.endAddress {
+                        Divider()
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("End Location")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                            Text(endAddress)
+                                .font(.subheadline)
+                        }
+                    }
+                }
+            } header: {
+                Text("Locations")
+            } footer: {
+                if trail.startAddress == nil && trail.endAddress == nil {
+                    Text("Addresses are automatically fetched for new trails.")
+                }
+            }
+
             // Trail Info Section
             Section {
                 HStack {
