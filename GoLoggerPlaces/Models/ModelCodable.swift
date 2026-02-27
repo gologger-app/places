@@ -181,6 +181,9 @@ extension Venue {
 struct TrailExport: Codable {
     let id: UUID
     let name: String?
+    let notes: String?
+    let startAddress: String?
+    let endAddress: String?
     let travelModeRaw: String
     let totalDistance: Double?
     let actualDuration: TimeInterval?
@@ -195,7 +198,7 @@ struct TrailExport: Codable {
     let links: [LinkExport]
 
     enum CodingKeys: String, CodingKey {
-        case id, name, travelModeRaw, totalDistance, actualDuration, startTime, endTime
+        case id, name, notes, startAddress, endAddress, travelModeRaw, totalDistance, actualDuration, startTime, endTime
         case createdOn, editDate, hexColor, points, waypoints, collectionIDs, links
         // Backward compatibility for old field names
         case pointIDs, waypointIDs, linkIDs
@@ -206,6 +209,9 @@ struct TrailExport: Codable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         id = try container.decode(UUID.self, forKey: .id)
         name = try container.decodeIfPresent(String.self, forKey: .name)
+        notes = try container.decodeIfPresent(String.self, forKey: .notes)
+        startAddress = try container.decodeIfPresent(String.self, forKey: .startAddress)
+        endAddress = try container.decodeIfPresent(String.self, forKey: .endAddress)
         travelModeRaw = try container.decode(String.self, forKey: .travelModeRaw)
         totalDistance = try container.decodeIfPresent(Double.self, forKey: .totalDistance)
         actualDuration = try container.decodeIfPresent(TimeInterval.self, forKey: .actualDuration)
@@ -226,6 +232,9 @@ struct TrailExport: Codable {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(id, forKey: .id)
         try container.encodeIfPresent(name, forKey: .name)
+        try container.encodeIfPresent(notes, forKey: .notes)
+        try container.encodeIfPresent(startAddress, forKey: .startAddress)
+        try container.encodeIfPresent(endAddress, forKey: .endAddress)
         try container.encode(travelModeRaw, forKey: .travelModeRaw)
         try container.encodeIfPresent(totalDistance, forKey: .totalDistance)
         try container.encodeIfPresent(actualDuration, forKey: .actualDuration)
@@ -241,11 +250,15 @@ struct TrailExport: Codable {
     }
 
     // Standard init for encoding
-    init(id: UUID, name: String?, travelModeRaw: String, totalDistance: Double?, actualDuration: TimeInterval?,
+    init(id: UUID, name: String?, notes: String?, startAddress: String?, endAddress: String?,
+         travelModeRaw: String, totalDistance: Double?, actualDuration: TimeInterval?,
          startTime: Date?, endTime: Date?, createdOn: Date, editDate: Date, hexColor: String,
          points: [TrailPointExport], waypoints: [WayPointExport], collectionIDs: [UUID], links: [LinkExport]) {
         self.id = id
         self.name = name
+        self.notes = notes
+        self.startAddress = startAddress
+        self.endAddress = endAddress
         self.travelModeRaw = travelModeRaw
         self.totalDistance = totalDistance
         self.actualDuration = actualDuration
@@ -271,6 +284,9 @@ extension Trail {
         return TrailExport(
             id: id,
             name: name,
+            notes: notes,
+            startAddress: startAddress,
+            endAddress: endAddress,
             travelModeRaw: "walking",  // Default for backward compatibility
             totalDistance: totalDistance,
             actualDuration: actualDuration,

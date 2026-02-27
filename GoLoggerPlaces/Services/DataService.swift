@@ -147,7 +147,78 @@ class DataService {
         modelContext.insert(trail)
         try? modelContext.save()
 
+        // Fetch addresses asynchronously
+        Task {
+            await fetchAddressesForTrail(trail)
+        }
+
         return trail
+    }
+
+    /// Fetch start and end addresses for a trail using reverse geocoding
+    @MainActor
+    func fetchAddressesForTrail(_ trail: Trail) async {
+        guard !trail.points.isEmpty else { return }
+
+        let sortedPoints = trail.points.sorted { $0.timestamp < $1.timestamp }
+        guard let firstPoint = sortedPoints.first,
+              let lastPoint = sortedPoints.last else { return }
+
+        let geocoder = CLGeocoder()
+
+        // Fetch start address
+        let startLocation = CLLocation(latitude: firstPoint.latitude, longitude: firstPoint.longitude)
+        do {
+            let startPlacemarks = try await geocoder.reverseGeocodeLocation(startLocation)
+            if let placemark = startPlacemarks.first {
+                trail.startAddress = formatAddress(from: placemark)
+            }
+        } catch {
+            print("Failed to fetch start address: \(error)")
+        }
+
+        // Fetch end address (only if different from start)
+        let endLocation = CLLocation(latitude: lastPoint.latitude, longitude: lastPoint.longitude)
+        let distance = startLocation.distance(from: endLocation)
+
+        // Only fetch end address if it's at least 50 meters away from start
+        if distance >= 50 {
+            do {
+                let endPlacemarks = try await geocoder.reverseGeocodeLocation(endLocation)
+                if let placemark = endPlacemarks.first {
+                    trail.endAddress = formatAddress(from: placemark)
+                }
+            } catch {
+                print("Failed to fetch end address: \(error)")
+            }
+        }
+
+        // Save the addresses
+        try? modelContext.save()
+    }
+
+    /// Format a placemark into a readable address string
+    private func formatAddress(from placemark: CLPlacemark) -> String {
+        var addressComponents: [String] = []
+
+        // Add street address
+        if let subThoroughfare = placemark.subThoroughfare, let thoroughfare = placemark.thoroughfare {
+            addressComponents.append("\(subThoroughfare) \(thoroughfare)")
+        } else if let thoroughfare = placemark.thoroughfare {
+            addressComponents.append(thoroughfare)
+        }
+
+        // Add city
+        if let locality = placemark.locality {
+            addressComponents.append(locality)
+        }
+
+        // Add state/province
+        if let administrativeArea = placemark.administrativeArea {
+            addressComponents.append(administrativeArea)
+        }
+
+        return addressComponents.joined(separator: ", ")
     }
 
     /// Fetch all trails

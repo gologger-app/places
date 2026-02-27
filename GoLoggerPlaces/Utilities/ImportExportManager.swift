@@ -160,6 +160,9 @@ class ImportExportManager {
                 hexColor: trailExport.hexColor
             )
             trail.name = trailExport.name
+            trail.notes = trailExport.notes
+            trail.startAddress = trailExport.startAddress
+            trail.endAddress = trailExport.endAddress
             trail.createdOn = trailExport.createdOn
             trail.editDate = trailExport.editDate
 

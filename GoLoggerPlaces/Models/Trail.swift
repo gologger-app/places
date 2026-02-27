@@ -7,6 +7,9 @@ import CoreLocation
 final class Trail {
     var id: UUID
     var name: String?  // Optional custom name for the trail
+    var notes: String?  // Optional notes about the trail
+    var startAddress: String?  // Reverse-geocoded address of the starting point
+    var endAddress: String?  // Reverse-geocoded address of the ending point
     var createdOn: Date
     var editDate: Date
     var hexColor: String = "#007AFF"  // Hex color for trail visualization (default: system blue for existing trails)
