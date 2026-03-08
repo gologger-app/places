@@ -24,6 +24,8 @@ class TrailRecordingViewModel: ObservableObject {
     @Published var showingWaypointAdd: Bool = false  // For showing waypoint creation sheet
     @Published var showWaypointCreatedFeedback: Bool = false  // For showing confirmation
     @Published var suggestedWaypointLabel: String = ""  // Suggested label for new waypoint
+    @Published var currentAltitude: Double? = nil  // Meters
+    @Published var currentSpeed: Double? = nil  // m/s, nil when unavailable
 
     private let locationService: LocationService
     private let modelContext: ModelContext
@@ -34,6 +36,8 @@ class TrailRecordingViewModel: ObservableObject {
     private var currentPauseStartTime: Date?
     private var pauseIntervals: [(Date, Date)] = []
     private var temporaryWaypoints: [TemporaryWaypoint] = []  // Store waypoints until trail is saved
+    private var activeTrail: Trail?
+    private var lastSavedPointIndex: Int = 0
 
     init(locationService: LocationService, modelContext: ModelContext) {
         self.locationService = locationService
@@ -73,6 +77,16 @@ class TrailRecordingViewModel: ObservableObject {
                 )
             }
         }
+
+        // Create and persist the trail immediately so data is safe from crashes
+        let trail = Trail()
+        for collection in collections {
+            collection.addTrail(trail)
+        }
+        modelContext.insert(trail)
+        try? modelContext.save()
+        activeTrail = trail
+        lastSavedPointIndex = 0
 
         // Start location tracking
         locationService.startRecordingTrail()
@@ -141,21 +155,25 @@ class TrailRecordingViewModel: ObservableObject {
         // Clear recording notification
         notificationService.clearRecordingNotification()
 
-        // Get recorded locations from location service
-        let locations = locationService.stopRecordingTrail()
+        // Flush any remaining points before stopping the location service (which clears its buffer)
+        flushNewPoints()
 
-        guard !locations.isEmpty else {
-            print("No locations recorded")
+        // Stop location service
+        locationService.stopRecordingTrail()
+
+        guard let trail = activeTrail else {
+            print("No active trail found")
             resetState()
             return nil
         }
 
-        // Create trail with recorded locations
-        let dataService = DataService(modelContext: modelContext)
-        let trail = dataService.createTrail(
-            locations: locations,
-            collections: currentCollections
-        )
+        guard !trail.points.isEmpty else {
+            print("No locations recorded, deleting empty trail")
+            modelContext.delete(trail)
+            try? modelContext.save()
+            resetState()
+            return nil
+        }
 
         // Create and attach waypoints to the trail
         for tempWaypoint in temporaryWaypoints {
@@ -166,13 +184,10 @@ class TrailRecordingViewModel: ObservableObject {
                 altitude: tempWaypoint.altitude,
                 visitTime: tempWaypoint.visitTime
             )
-            // Insert waypoint first
             modelContext.insert(waypoint)
-            // Then append to trail - SwiftData will handle the inverse relationship
             trail.waypoints.append(waypoint)
         }
 
-        // Save the waypoints with the trail
         do {
             try modelContext.save()
             print("✅ Successfully saved \(temporaryWaypoints.count) waypoints to trail")
@@ -180,10 +195,39 @@ class TrailRecordingViewModel: ObservableObject {
             print("❌ Error saving waypoints: \(error)")
         }
 
+        // Fetch start/end addresses asynchronously
+        let dataService = DataService(modelContext: modelContext)
+        Task {
+            await dataService.fetchAddressesForTrail(trail)
+        }
+
         // Reset state
         resetState()
 
         return trail
+    }
+
+    /// Flush newly recorded locations into the persisted trail and save
+    private func flushNewPoints() {
+        guard let trail = activeTrail else { return }
+        let locations = locationService.recordedLocations
+        guard lastSavedPointIndex < locations.count else { return }
+
+        for location in locations[lastSavedPointIndex...] {
+            let point = TrailPoint(from: location)
+            modelContext.insert(point)
+            trail.points.append(point)
+        }
+        let newPointCount = locations.count - lastSavedPointIndex
+        lastSavedPointIndex = locations.count
+
+        trail.updateCache()
+        do {
+            try modelContext.save()
+            print("💾 Flushed \(newPointCount) points, trail now has \(trail.cachedPointCount) total")
+        } catch {
+            print("❌ Error saving trail checkpoint: \(error)")
+        }
     }
 
     private func resetState() {
@@ -197,6 +241,8 @@ class TrailRecordingViewModel: ObservableObject {
         currentPauseStartTime = nil
         pauseIntervals = []
         temporaryWaypoints = []
+        activeTrail = nil
+        lastSavedPointIndex = 0
     }
 
     // MARK: - Private Methods
@@ -221,8 +267,15 @@ class TrailRecordingViewModel: ObservableObject {
             totalDistance = locationService.currentDistance
             pointCount = locationService.recordedLocations.count
 
-            // Update notification every 10 seconds to avoid too many updates
-            if Int(elapsedTime) % 10 == 0 {
+            // Update altitude and speed from the latest location fix
+            if let location = locationService.currentLocation {
+                currentAltitude = location.altitude
+                currentSpeed = location.speed >= 0 ? location.speed : nil
+            }
+
+            // Every 10 seconds: flush new points to persistent store and update notification
+            if Int(elapsedTime) % 10 == 0 && Int(elapsedTime) > 0 {
+                flushNewPoints()
                 updateNotification()
             }
         }
@@ -304,5 +357,17 @@ class TrailRecordingViewModel: ObservableObject {
     /// Formatted distance string
     var distanceFormatted: String {
         return MeasurementFormatter.formatDistance(totalDistance)
+    }
+
+    /// Formatted altitude string, or "—" when unavailable
+    var altitudeFormatted: String {
+        guard let alt = currentAltitude else { return "—" }
+        return MeasurementFormatter.formatAltitude(alt)
+    }
+
+    /// Formatted speed string, or "—" when unavailable
+    var speedFormatted: String {
+        guard let speed = currentSpeed else { return "—" }
+        return MeasurementFormatter.formatSpeed(speed)
     }
 }
