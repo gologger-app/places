@@ -39,7 +39,7 @@ struct TrailRecordingView: View {
                         .foregroundStyle(.primary)
                 }
 
-                // Stats
+                // Stats — row 1
                 HStack(spacing: 20) {
                     StatColumn(
                         icon: "clock.fill",
@@ -57,6 +57,29 @@ struct TrailRecordingView: View {
                         icon: "mappin.circle.fill",
                         value: "\(viewModel.waypointCount)",
                         label: "Waypoints"
+                    )
+                }
+
+                Divider()
+
+                // Stats — row 2
+                HStack(spacing: 20) {
+                    StatColumn(
+                        icon: "point.3.connected.trianglepath.dotted",
+                        value: "\(viewModel.pointCount)",
+                        label: "Points"
+                    )
+
+                    StatColumn(
+                        icon: "mountain.2.fill",
+                        value: viewModel.altitudeFormatted,
+                        label: "Altitude"
+                    )
+
+                    StatColumn(
+                        icon: "speedometer",
+                        value: viewModel.speedFormatted,
+                        label: "Speed"
                     )
                 }
 
