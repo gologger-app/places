@@ -565,8 +565,11 @@ struct MapContainerView: View {
     private func stopRecording() {
         guard let viewModel = recordingViewModel else { return }
 
-        let _ = viewModel.stopRecording()
-        // Trail is saved automatically by the view model
+        if let savedTrail = viewModel.stopRecording() {
+            // Trail is saved automatically by the view model
+            // Navigate to the trail detail view
+            navigationPath.append(savedTrail)
+        }
     }
 
     private func centerOnUserLocation() {
