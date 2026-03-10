@@ -10,6 +10,9 @@ struct VenueCreationSheet: View {
 
     let coordinate: CLLocationCoordinate2D
     let userLocation: CLLocation?
+    var prefillName: String? = nil
+    var prefillAddress: String? = nil
+    var onSave: (() -> Void)? = nil
 
     @State private var venueName: String = ""
     @State private var address: String = ""
@@ -292,8 +295,14 @@ struct VenueCreationSheet: View {
             }
         }
 
-        // Perform reverse geocoding
-        fetchAddress()
+        // Use prefill values if provided, otherwise reverse geocode
+        if let name = prefillName {
+            venueName = name
+            address = prefillAddress ?? ""
+            isLoadingAddress = false
+        } else {
+            fetchAddress()
+        }
     }
 
     private func fetchAddress() {
@@ -393,6 +402,7 @@ struct VenueCreationSheet: View {
         modelContext.insert(newVenue)
 
         try? modelContext.save()
+        onSave?()
         dismiss()
     }
 }

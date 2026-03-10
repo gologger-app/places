@@ -23,6 +23,7 @@ struct VenueListView: View {
 
     @State private var searchText = ""
     @State private var sortOption: VenueSortOption = .createdOn
+    @State private var showAddressSearch = false
 
     var body: some View {
         Group {
@@ -34,7 +35,15 @@ struct VenueListView: View {
         }
         .navigationTitle("Venues")
         .searchable(text: $searchText, prompt: "Search venues")
+        .sheet(isPresented: $showAddressSearch) {
+            VenueAddressSearchSheet(userLocation: nil)
+        }
         .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Button(action: { showAddressSearch = true }) {
+                    Label("Add by Address", systemImage: "plus")
+                }
+            }
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
                     ForEach(VenueSortOption.allCases, id: \.self) { option in
@@ -66,7 +75,7 @@ struct VenueListView: View {
                 .font(.title2)
                 .fontWeight(.semibold)
 
-            Text("Add venues from the Map tab by tapping the pin button")
+            Text("Add venues from the Map tab or tap + to search by address")
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
