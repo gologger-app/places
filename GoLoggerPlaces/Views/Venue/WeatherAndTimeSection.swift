@@ -149,7 +149,7 @@ struct WeatherAndTimeSection: View {
                             ScrollView(.horizontal, showsIndicators: false) {
                                 HStack(spacing: 12) {
                                     ForEach(weatherService.hourlyForecast) { hourly in
-                                        HourlyForecastCard(hourly: hourly)
+                                        HourlyForecastCard(hourly: hourly, timeZone: weatherService.venueTimeZone ?? TimeZone.current)
                                     }
                                 }
                                 .padding(.horizontal, 4)
@@ -212,7 +212,7 @@ struct WeatherAndTimeSection: View {
     private func formatTime(_ date: Date) -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "h:mm a"
-        formatter.timeZone = TimeZone.current
+        formatter.timeZone = weatherService.venueTimeZone ?? TimeZone.current
         return formatter.string(from: date)
     }
 
@@ -282,6 +282,7 @@ struct SunEvent {
 
 struct HourlyForecastCard: View {
     let hourly: HourlyWeatherData
+    let timeZone: TimeZone
 
     var body: some View {
         VStack(spacing: 6) {
@@ -318,7 +319,7 @@ struct HourlyForecastCard: View {
     private func formatHour(_ date: Date) -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "ha"
-        formatter.timeZone = TimeZone.current
+        formatter.timeZone = timeZone
         return formatter.string(from: date).lowercased()
     }
 }

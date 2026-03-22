@@ -134,6 +134,7 @@ class WeatherService: ObservableObject {
     @Published var hourlyForecast: [HourlyWeatherData] = []
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
+    @Published var venueTimeZone: TimeZone?
 
     // MARK: - Private Properties
 
@@ -221,6 +222,13 @@ class WeatherService: ObservableObject {
             self.weatherCache[cacheKey] = (currentWeatherData, Array(hourlyData), Date())
             self.isLoading = false
 
+            // Fetch venue's local timezone
+            let geocoder = CLGeocoder()
+            if let placemark = try? await geocoder.reverseGeocodeLocation(location).first,
+               let tz = placemark.timeZone {
+                self.venueTimeZone = tz
+            }
+
         } catch {
             print("⚠️ WeatherKit error: \(error.localizedDescription)")
             print("   Error details: \(error)")
@@ -242,17 +250,17 @@ class WeatherService: ObservableObject {
         }
     }
 
-    /// Get local time for a coordinate (uses current timezone)
+    /// Get local time for the venue's timezone
     func getLocalTime() -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "h:mm a"
-        formatter.timeZone = TimeZone.current
+        formatter.timeZone = venueTimeZone ?? TimeZone.current
         return formatter.string(from: Date())
     }
 
-    /// Get timezone name (uses current timezone)
+    /// Get timezone name for the venue's timezone
     func getTimezoneName() -> String {
-        let timezone = TimeZone.current
+        let timezone = venueTimeZone ?? TimeZone.current
         return timezone.abbreviation() ?? "UTC"
     }
 
