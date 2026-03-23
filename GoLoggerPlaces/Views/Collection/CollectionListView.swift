@@ -123,7 +123,7 @@ struct CollectionRowView: View {
                     .foregroundStyle(.secondary)
 
                 if collection.trailCount > 0 {
-                    Label("\(collection.trailCount)", systemImage: "figure.walk")
+                    Label("\(collection.trailCount)", systemImage: "point.topleft.down.to.point.bottomright.curvepath")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }

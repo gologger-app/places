@@ -62,7 +62,7 @@ struct Home: View {
                             }
 
                             Button(action: { navigationPath.append(MenuDestination.trails) }) {
-                                Label("Trails", systemImage: "figure.walk")
+                                Label("Trails", systemImage: "point.topleft.down.to.point.bottomright.curvepath")
                             }
 //                        } label: {
 //                            Image(systemName: "ellipsis.circle")

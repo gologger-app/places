@@ -158,7 +158,7 @@ struct CollectionDetailView: View {
             StatView(
                 value: "\(collection.trailCount)",
                 label: collection.trailCount == 1 ? "Trail" : "Trails",
-                icon: "figure.walk"
+                icon: "point.topleft.down.to.point.bottomright.curvepath"
             )
 
             if collection.trailCount > 0 {
@@ -357,7 +357,7 @@ struct TrailSummaryView: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            Image(systemName: "figure.walk")
+            Image(systemName: "point.topleft.down.to.point.bottomright.curvepath")
                 .font(.system(size: 24))
                 .foregroundStyle(.blue)
 

@@ -64,7 +64,7 @@ struct TrailListView: View {
 
     private var emptyState: some View {
         VStack(spacing: 20) {
-            Image(systemName: "figure.walk")
+            Image(systemName: "point.topleft.down.to.point.bottomright.curvepath")
                 .font(.system(size: 60))
                 .foregroundStyle(.secondary)
 
@@ -140,7 +140,7 @@ struct TrailRowListView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Image(systemName: "figure.walk")
+                Image(systemName: "point.topleft.down.to.point.bottomright.curvepath")
                     .foregroundStyle(.blue)
 
                 Text(trail.displayName)

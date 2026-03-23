@@ -404,7 +404,7 @@ struct TrailTrimView: View {
                     label: "Distance",
                     oldValue: trail.distanceFormatted,
                     newValue: newDistanceFormatted,
-                    icon: "figure.walk"
+                    icon: "point.topleft.down.to.point.bottomright.curvepath"
                 )
 
                 Divider()

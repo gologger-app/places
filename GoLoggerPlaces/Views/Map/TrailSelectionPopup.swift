@@ -17,7 +17,7 @@ struct TrailSelectionPopup: View {
                             .lineLimit(2)
 
                         HStack(spacing: 4) {
-                            Image(systemName: "figure.walk")
+                            Image(systemName: "point.topleft.down.to.point.bottomright.curvepath")
                                 .font(.system(size: 10))
                             if let distance = trail.totalDistance {
                                 Text(MeasurementFormatter.formatDistance(distance))
@@ -67,7 +67,7 @@ struct TrailSelectionPopup: View {
                                                 .lineLimit(1)
 
                                             HStack(spacing: 4) {
-                                                Image(systemName: "figure.walk")
+                                                Image(systemName: "point.topleft.down.to.point.bottomright.curvepath")
                                                     .font(.system(size: 9))
                                                 if let distance = trail.totalDistance {
                                                     Text(MeasurementFormatter.formatDistance(distance))

@@ -48,7 +48,7 @@ struct TrailRecordingView: View {
                     )
 
                     StatColumn(
-                        icon: "figure.walk",
+                        icon: "point.topleft.down.to.point.bottomright.curvepath",
                         value: viewModel.distanceFormatted,
                         label: "Distance"
                     )

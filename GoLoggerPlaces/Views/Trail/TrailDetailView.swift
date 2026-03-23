@@ -823,7 +823,7 @@ struct TrailDetailView: View {
         VStack(spacing: 16) {
             HStack(spacing: 20) {
                 StatCard(
-                    icon: "figure.walk",
+                    icon: "point.topleft.down.to.point.bottomright.curvepath",
                     label: "Distance",
                     value: trail.distanceFormatted,
                     color: .blue
