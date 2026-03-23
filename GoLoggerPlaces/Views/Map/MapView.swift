@@ -6,6 +6,7 @@ struct MapView: UIViewRepresentable {
     @Binding var region: MKCoordinateRegion
     var venues: [Venue]
     var trails: [Trail]
+    var waypoints: [WayPoint] = []
     var recordingLocations: [CLLocation]  // Current recording trail
     var trailMarkers: [TrailMarkerAnnotation] = []  // Start/end markers for trails
     var onAnnotationTapped: ((Venue) -> Void)?
@@ -100,6 +101,9 @@ struct MapView: UIViewRepresentable {
         // Update trail markers
         context.coordinator.updateTrailMarkers(mapView: mapView, markers: trailMarkers)
 
+        // Update waypoint annotations
+        context.coordinator.updateWaypointAnnotations(mapView: mapView, waypoints: waypoints)
+
         // Update trail overlays
         context.coordinator.updateOverlays(mapView: mapView, trails: trails, recordingLocations: recordingLocations)
     }
@@ -136,6 +140,7 @@ struct MapView: UIViewRepresentable {
         private var currentTrailMarkerIDs: Set<String> = []
         private var currentTrailIDs: Set<UUID> = []
         private var currentTrailColors: [UUID: String] = [:]  // Track trail colors
+        private var currentWaypointIDs: Set<UUID> = []
         private var hasRecordingOverlay = false
         private var recordingLocationCount = 0
 
@@ -212,6 +217,22 @@ struct MapView: UIViewRepresentable {
             currentTrailMarkerIDs = newMarkerIDs
         }
 
+        func updateWaypointAnnotations(mapView: MKMapView, waypoints: [WayPoint]) {
+            let newIDs = Set(waypoints.map { $0.id })
+            guard newIDs != currentWaypointIDs else { return }
+
+            let existing = mapView.annotations.compactMap { $0 as? WayPointAnnotation }
+            let existingIDs = Set(existing.map { $0.waypoint.id })
+
+            let toRemove = existing.filter { !newIDs.contains($0.waypoint.id) }
+            if !toRemove.isEmpty { mapView.removeAnnotations(toRemove) }
+
+            let toAdd = waypoints.filter { !existingIDs.contains($0.id) }
+            if !toAdd.isEmpty { mapView.addAnnotations(toAdd.map { WayPointAnnotation(waypoint: $0) }) }
+
+            currentWaypointIDs = newIDs
+        }
+
         // MARK: - Overlay Management
 
         func updateOverlays(mapView: MKMapView, trails: [Trail], recordingLocations: [CLLocation]) {
@@ -284,6 +305,24 @@ struct MapView: UIViewRepresentable {
             // Don't customize user location
             if annotation is MKUserLocation {
                 return nil
+            }
+
+            // Handle waypoint annotations
+            if let waypointAnnotation = annotation as? WayPointAnnotation {
+                let identifier = "WayPointAnnotation"
+                let view: MKMarkerAnnotationView
+                if let dequeuedView = mapView.dequeueReusableAnnotationView(withIdentifier: identifier) as? MKMarkerAnnotationView {
+                    view = dequeuedView
+                    view.annotation = annotation
+                } else {
+                    view = MKMarkerAnnotationView(annotation: annotation, reuseIdentifier: identifier)
+                    view.canShowCallout = true
+                }
+                view.markerTintColor = .systemPurple
+                view.glyphImage = UIImage(systemName: "flag.fill")
+                view.displayPriority = .defaultHigh
+                _ = waypointAnnotation  // suppress unused warning
+                return view
             }
 
             // Handle trail markers
@@ -525,6 +564,20 @@ class TrailMarkerAnnotation: NSObject, MKAnnotation {
     init(coordinate: CLLocationCoordinate2D, type: TrailMarkerType) {
         self.coordinate = coordinate
         self.type = type
+        super.init()
+    }
+}
+
+// MARK: - Waypoint Annotation
+
+class WayPointAnnotation: NSObject, MKAnnotation {
+    let waypoint: WayPoint
+
+    var coordinate: CLLocationCoordinate2D { waypoint.coordinate }
+    var title: String? { waypoint.label }
+
+    init(waypoint: WayPoint) {
+        self.waypoint = waypoint
         super.init()
     }
 }

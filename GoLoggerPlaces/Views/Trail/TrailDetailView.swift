@@ -278,6 +278,26 @@ struct TrailDetailView: View {
                             }
                         }
                     }
+
+                    // Waypoint markers
+                    ForEach(trail.waypoints) { waypoint in
+                        Annotation(waypoint.label, coordinate: waypoint.coordinate) {
+                            VStack(spacing: 2) {
+                                Image(systemName: "flag.fill")
+                                    .font(.title3)
+                                    .foregroundStyle(.purple)
+                                    .background(Circle().fill(.white).padding(-4))
+                                Text(waypoint.label)
+                                    .font(.caption2)
+                                    .fontWeight(.bold)
+                                    .foregroundStyle(.white)
+                                    .padding(.horizontal, 6)
+                                    .padding(.vertical, 2)
+                                    .background(.purple)
+                                    .cornerRadius(4)
+                            }
+                        }
+                    }
                 }
                 .mapStyle(.standard)
                 .frame(height: 250)
@@ -1594,6 +1614,26 @@ struct FullScreenTrailMapView: View {
                                         .padding(.horizontal, 8)
                                         .padding(.vertical, 3)
                                         .background(.orange)
+                                        .cornerRadius(6)
+                                }
+                            }
+                        }
+
+                        // Waypoint markers
+                        ForEach(trail.waypoints) { waypoint in
+                            Annotation(waypoint.label, coordinate: waypoint.coordinate) {
+                                VStack(spacing: 2) {
+                                    Image(systemName: "flag.fill")
+                                        .font(.title2)
+                                        .foregroundStyle(.purple)
+                                        .background(Circle().fill(.white).padding(-4))
+                                    Text(waypoint.label)
+                                        .font(.caption)
+                                        .fontWeight(.bold)
+                                        .foregroundStyle(.white)
+                                        .padding(.horizontal, 8)
+                                        .padding(.vertical, 3)
+                                        .background(.purple)
                                         .cornerRadius(6)
                                 }
                             }

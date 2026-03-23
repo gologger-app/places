@@ -151,6 +151,7 @@ struct MapContainerView: View {
             region: $region,
             venues: allVenues,
             trails: allTrails,
+            waypoints: allWaypoints,
             recordingLocations: locationService.recordedLocations,
             onAnnotationTapped: handleVenueTapped,
             onTrailTapped: handleTrailTapped,
@@ -408,6 +409,11 @@ struct MapContainerView: View {
         }
 
         return filteredVenues
+    }
+
+    private var allWaypoints: [WayPoint] {
+        guard filters.showTrails else { return [] }
+        return allTrails.flatMap { $0.waypoints }
     }
 
     private var allTrails: [Trail] {
