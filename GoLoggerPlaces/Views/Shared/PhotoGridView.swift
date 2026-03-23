@@ -6,7 +6,7 @@ import PhotosUI
 /// A full section showing a header, horizontal photo strip, and add-photo button.
 struct PhotoGridView: View {
     let photos: [Photo]
-    let onAdd: (UIImage) -> Void
+    let onAdd: (UIImage, Date?) -> Void
     let onDelete: (Photo) -> Void
 
     @State private var pickerItems: [PhotosPickerItem] = []
@@ -78,7 +78,8 @@ struct PhotoGridView: View {
             for item in items {
                 if let data = try? await item.loadTransferable(type: Data.self),
                    let image = UIImage(data: data) {
-                    onAdd(image)
+                    let capturedAt = PhotoStorage.capturedAt(from: data)
+                    onAdd(image, capturedAt)
                 }
             }
             pickerItems = []
@@ -91,7 +92,7 @@ struct PhotoGridView: View {
 /// A compact horizontal photo strip with an inline add-photo button. No header.
 struct PhotoStripView: View {
     let photos: [Photo]
-    let onAdd: (UIImage) -> Void
+    let onAdd: (UIImage, Date?) -> Void
     let onDelete: (Photo) -> Void
 
     @State private var pickerItems: [PhotosPickerItem] = []
@@ -143,7 +144,8 @@ struct PhotoStripView: View {
             for item in items {
                 if let data = try? await item.loadTransferable(type: Data.self),
                    let image = UIImage(data: data) {
-                    onAdd(image)
+                    let capturedAt = PhotoStorage.capturedAt(from: data)
+                    onAdd(image, capturedAt)
                 }
             }
             pickerItems = []

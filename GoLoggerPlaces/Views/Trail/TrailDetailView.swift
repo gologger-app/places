@@ -944,7 +944,7 @@ struct TrailDetailView: View {
 
                             PhotoStripView(
                                 photos: waypoint.photos,
-                                onAdd: { image in addPhoto(image, to: waypoint) },
+                                onAdd: { image, capturedAt in addPhoto(image, capturedAt: capturedAt, to: waypoint) },
                                 onDelete: { photo in deletePhoto(photo) }
                             )
                         }
@@ -1402,10 +1402,10 @@ struct TrailDetailView: View {
 
     // MARK: - Actions
 
-    private func addPhoto(_ image: UIImage, to waypoint: WayPoint) {
+    private func addPhoto(_ image: UIImage, capturedAt: Date?, to waypoint: WayPoint) {
         do {
             let filename = try PhotoStorage.save(image)
-            let photo = Photo(filename: filename)
+            let photo = Photo(filename: filename, capturedAt: capturedAt)
             modelContext.insert(photo)
             waypoint.photos.append(photo)
             photo.waypoint = waypoint

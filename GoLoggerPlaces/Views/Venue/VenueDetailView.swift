@@ -587,7 +587,7 @@ struct VenueDetailView: View {
     private var photosSection: some View {
         PhotoGridView(
             photos: venue.photos,
-            onAdd: { image in addPhoto(image, to: venue) },
+            onAdd: { image, capturedAt in addPhoto(image, capturedAt: capturedAt, to: venue) },
             onDelete: { photo in deletePhoto(photo) }
         )
     }
@@ -657,10 +657,10 @@ struct VenueDetailView: View {
         }
     }
 
-    private func addPhoto(_ image: UIImage, to venue: Venue) {
+    private func addPhoto(_ image: UIImage, capturedAt: Date?, to venue: Venue) {
         do {
             let filename = try PhotoStorage.save(image)
-            let photo = Photo(filename: filename)
+            let photo = Photo(filename: filename, capturedAt: capturedAt)
             modelContext.insert(photo)
             venue.photos.append(photo)
             photo.venue = venue

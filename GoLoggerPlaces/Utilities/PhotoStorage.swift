@@ -1,5 +1,6 @@
 import UIKit
 import Foundation
+import ImageIO
 
 enum PhotoStorage {
     static let maxPhotoBytes = 512_000
@@ -59,6 +60,24 @@ enum PhotoStorage {
                 try fm.copyItem(at: file, to: dst)
             }
         }
+    }
+
+    // MARK: - EXIF
+
+    /// Extracts the original capture datetime from JPEG/HEIC EXIF metadata.
+    /// Returns nil if the metadata is absent or unparseable.
+    static func capturedAt(from data: Data) -> Date? {
+        guard
+            let source = CGImageSourceCreateWithData(data as CFData, nil),
+            let properties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any],
+            let exif = properties[kCGImagePropertyExifDictionary] as? [CFString: Any],
+            let dateString = exif[kCGImagePropertyExifDateTimeOriginal] as? String
+        else { return nil }
+
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy:MM:dd HH:mm:ss"
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        return formatter.date(from: dateString)
     }
 
     // MARK: - Compression
