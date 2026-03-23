@@ -238,6 +238,12 @@ struct PhotoFullscreenView: View {
                 }
                 .padding()
                 Spacer()
+                if let date = currentPhoto?.capturedAt {
+                    Text(date.formatted(date: .long, time: .shortened))
+                        .font(.caption)
+                        .foregroundStyle(.white.opacity(0.8))
+                        .padding(.bottom, 40)
+                }
             }
         }
         .alert("Delete Photo?", isPresented: $showDeleteAlert) {
