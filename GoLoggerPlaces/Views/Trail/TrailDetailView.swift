@@ -913,32 +913,40 @@ struct TrailDetailView: View {
             } else {
                 VStack(spacing: 8) {
                     ForEach(trail.waypoints.sorted(by: { $0.visitTime < $1.visitTime })) { waypoint in
-                        HStack {
-                            Image(systemName: "mappin.circle.fill")
-                                .foregroundStyle(.blue)
+                        VStack(alignment: .leading, spacing: 10) {
+                            HStack {
+                                Image(systemName: "mappin.circle.fill")
+                                    .foregroundStyle(.blue)
 
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(waypoint.label)
-                                    .font(.body)
-                                    .fontWeight(.medium)
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(waypoint.label)
+                                        .font(.body)
+                                        .fontWeight(.medium)
 
-                                Text(waypoint.visitTime.formatted(date: .omitted, time: .shortened))
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
-
-                            Spacer()
-
-                            if let altitude = waypoint.altitude {
-                                VStack(alignment: .trailing, spacing: 2) {
-                                    Text(MeasurementFormatter.formatAltitude(altitude))
+                                    Text(waypoint.visitTime.formatted(date: .omitted, time: .shortened))
                                         .font(.caption)
                                         .foregroundStyle(.secondary)
-                                    Text("altitude")
-                                        .font(.caption2)
-                                        .foregroundStyle(.tertiary)
+                                }
+
+                                Spacer()
+
+                                if let altitude = waypoint.altitude {
+                                    VStack(alignment: .trailing, spacing: 2) {
+                                        Text(MeasurementFormatter.formatAltitude(altitude))
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                        Text("altitude")
+                                            .font(.caption2)
+                                            .foregroundStyle(.tertiary)
+                                    }
                                 }
                             }
+
+                            PhotoStripView(
+                                photos: waypoint.photos,
+                                onAdd: { image in addPhoto(image, to: waypoint) },
+                                onDelete: { photo in deletePhoto(photo) }
+                            )
                         }
                         .padding()
                         .background(.ultraThinMaterial)
@@ -1393,6 +1401,25 @@ struct TrailDetailView: View {
     }
 
     // MARK: - Actions
+
+    private func addPhoto(_ image: UIImage, to waypoint: WayPoint) {
+        do {
+            let filename = try PhotoStorage.save(image)
+            let photo = Photo(filename: filename)
+            modelContext.insert(photo)
+            waypoint.photos.append(photo)
+            photo.waypoint = waypoint
+            try? modelContext.save()
+        } catch {
+            print("Failed to save photo: \(error)")
+        }
+    }
+
+    private func deletePhoto(_ photo: Photo) {
+        PhotoStorage.delete(photo.filename)
+        modelContext.delete(photo)
+        try? modelContext.save()
+    }
 
     private func deleteTrail() {
         modelContext.delete(trail)

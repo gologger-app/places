@@ -15,6 +15,10 @@ final class WayPoint {
     // Back reference to parent Trail (set via inverse relationship)
     var trail: Trail?
 
+    // One-to-many relationship with Photos
+    @Relationship(deleteRule: .cascade, inverse: \Photo.waypoint)
+    var photos: [Photo] = []
+
     init(
         label: String,
         latitude: Double,

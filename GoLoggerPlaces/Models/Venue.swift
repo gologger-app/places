@@ -27,6 +27,10 @@ final class Venue {
     @Relationship(deleteRule: .cascade, inverse: \Link.venue)
     var links: [Link] = []
 
+    // One-to-many relationship with Photos
+    @Relationship(deleteRule: .cascade, inverse: \Photo.venue)
+    var photos: [Photo] = []
+
     init(
         latitude: Double,
         longitude: Double,

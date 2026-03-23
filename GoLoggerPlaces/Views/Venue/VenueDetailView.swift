@@ -48,6 +48,9 @@ struct VenueDetailView: View {
                         notesSection(notes)
                     }
 
+                    // Photos
+                    photosSection
+
                     // Weather & Time
                     weatherAndTimeSection
 
@@ -581,6 +584,14 @@ struct VenueDetailView: View {
         }
     }
 
+    private var photosSection: some View {
+        PhotoGridView(
+            photos: venue.photos,
+            onAdd: { image in addPhoto(image, to: venue) },
+            onDelete: { photo in deletePhoto(photo) }
+        )
+    }
+
     // MARK: - Helpers
 
     private func formatDistance(from userLocation: CLLocation) -> String {
@@ -644,6 +655,25 @@ struct VenueDetailView: View {
         } catch {
             print("Failed to export venue: \(error.localizedDescription)")
         }
+    }
+
+    private func addPhoto(_ image: UIImage, to venue: Venue) {
+        do {
+            let filename = try PhotoStorage.save(image)
+            let photo = Photo(filename: filename)
+            modelContext.insert(photo)
+            venue.photos.append(photo)
+            photo.venue = venue
+            try? modelContext.save()
+        } catch {
+            print("Failed to save photo: \(error)")
+        }
+    }
+
+    private func deletePhoto(_ photo: Photo) {
+        PhotoStorage.delete(photo.filename)
+        modelContext.delete(photo)
+        try? modelContext.save()
     }
 
     private func deleteVenue() {

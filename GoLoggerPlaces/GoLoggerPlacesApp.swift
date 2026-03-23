@@ -11,7 +11,8 @@ struct GoLoggerPlacesApp: App {
             TrailPoint.self,
             WayPoint.self,
             Visit.self,
-            Link.self
+            Link.self,
+            Photo.self
         ])
 
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)

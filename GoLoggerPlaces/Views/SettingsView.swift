@@ -66,7 +66,7 @@ struct SettingsView: View {
                 } header: {
                     Text("Data Management")
                 } footer: {
-                    Text("Export creates a JSON file with all your trips, venues, and trails. Import restores data from a previously exported JSON file.")
+                    Text("Export creates a folder with all your venues, trails, and photos. Save it to Files to import it back later.")
                 }
 
                 Section {
@@ -148,7 +148,7 @@ struct SettingsView: View {
             }
             .fileImporter(
                 isPresented: $showingImportPicker,
-                allowedContentTypes: [.json],
+                allowedContentTypes: [.folder, .json],
                 allowsMultipleSelection: false
             ) { result in
                 handleImportResult(result)

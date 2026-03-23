@@ -88,10 +88,11 @@ struct VenueExport: Codable {
     let collectionIDs: [UUID]
     let visits: [VisitExport]
     let links: [LinkExport]
+    let photoFilenames: [String]
 
     enum CodingKeys: String, CodingKey {
         case id, latitude, longitude, altitude, label, address, notes
-        case createdOn, editDate, collectionIDs, visits, links
+        case createdOn, editDate, collectionIDs, visits, links, photoFilenames
         // Backward compatibility for old field names
         case createdDate, visitIDs, linkIDs
     }
@@ -116,6 +117,7 @@ struct VenueExport: Codable {
         collectionIDs = try container.decode([UUID].self, forKey: .collectionIDs)
         visits = try container.decodeIfPresent([VisitExport].self, forKey: .visits) ?? []
         links = try container.decodeIfPresent([LinkExport].self, forKey: .links) ?? []
+        photoFilenames = try container.decodeIfPresent([String].self, forKey: .photoFilenames) ?? []
     }
 
     // Custom encoding
@@ -133,12 +135,13 @@ struct VenueExport: Codable {
         try container.encode(collectionIDs, forKey: .collectionIDs)
         try container.encode(visits, forKey: .visits)
         try container.encode(links, forKey: .links)
+        try container.encode(photoFilenames, forKey: .photoFilenames)
     }
 
     // Standard init for encoding
     init(id: UUID, latitude: Double, longitude: Double, altitude: Double?, label: String,
          address: String?, notes: String?, createdOn: Date, editDate: Date,
-         collectionIDs: [UUID], visits: [VisitExport], links: [LinkExport]) {
+         collectionIDs: [UUID], visits: [VisitExport], links: [LinkExport], photoFilenames: [String]) {
         self.id = id
         self.latitude = latitude
         self.longitude = longitude
@@ -151,6 +154,7 @@ struct VenueExport: Codable {
         self.collectionIDs = collectionIDs
         self.visits = visits
         self.links = links
+        self.photoFilenames = photoFilenames
     }
 }
 
@@ -171,7 +175,8 @@ extension Venue {
             editDate: editDate,
             collectionIDs: collections.map { $0.id },
             visits: sortedVisits.map { $0.toExport() },
-            links: links.map { $0.toExport() }
+            links: links.map { $0.toExport() },
+            photoFilenames: photos.map { $0.filename }
         )
     }
 }
@@ -332,21 +337,62 @@ extension TrailPoint {
 // MARK: - WayPoint Export
 
 struct WayPointExport: Codable {
+    let id: UUID
     let label: String
     let latitude: Double
     let longitude: Double
     let altitude: Double?
     let visitTime: Date
+    let photoFilenames: [String]
+
+    enum CodingKeys: String, CodingKey {
+        case id, label, latitude, longitude, altitude, visitTime, photoFilenames
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decodeIfPresent(UUID.self, forKey: .id) ?? UUID()
+        label = try container.decode(String.self, forKey: .label)
+        latitude = try container.decode(Double.self, forKey: .latitude)
+        longitude = try container.decode(Double.self, forKey: .longitude)
+        altitude = try container.decodeIfPresent(Double.self, forKey: .altitude)
+        visitTime = try container.decode(Date.self, forKey: .visitTime)
+        photoFilenames = try container.decodeIfPresent([String].self, forKey: .photoFilenames) ?? []
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(id, forKey: .id)
+        try container.encode(label, forKey: .label)
+        try container.encode(latitude, forKey: .latitude)
+        try container.encode(longitude, forKey: .longitude)
+        try container.encodeIfPresent(altitude, forKey: .altitude)
+        try container.encode(visitTime, forKey: .visitTime)
+        try container.encode(photoFilenames, forKey: .photoFilenames)
+    }
+
+    init(id: UUID, label: String, latitude: Double, longitude: Double,
+         altitude: Double?, visitTime: Date, photoFilenames: [String]) {
+        self.id = id
+        self.label = label
+        self.latitude = latitude
+        self.longitude = longitude
+        self.altitude = altitude
+        self.visitTime = visitTime
+        self.photoFilenames = photoFilenames
+    }
 }
 
 extension WayPoint {
     func toExport() -> WayPointExport {
         WayPointExport(
+            id: id,
             label: label,
             latitude: latitude,
             longitude: longitude,
             altitude: altitude,
-            visitTime: visitTime
+            visitTime: visitTime,
+            photoFilenames: photos.map { $0.filename }
         )
     }
 }
