@@ -550,75 +550,65 @@ struct TrailDetailView: View {
                     }
                 }
 
-                Chart(altitudeData) { point in
-                    LineMark(
-                        x: .value("Time", point.elapsedTime),
-                        y: .value("Altitude", point.value)
-                    )
-                    .foregroundStyle(.blue.gradient)
-                    .interpolationMethod(.catmullRom)
+                ZStack(alignment: .topTrailing) {
+                    Chart(altitudeData) { point in
+                        LineMark(
+                            x: .value("Time", point.elapsedTime),
+                            y: .value("Altitude", point.value)
+                        )
+                        .foregroundStyle(.blue.gradient)
+                        .interpolationMethod(.catmullRom)
 
-                    AreaMark(
-                        x: .value("Time", point.elapsedTime),
-                        y: .value("Altitude", point.value)
-                    )
-                    .foregroundStyle(.blue.opacity(0.1).gradient)
-                    .interpolationMethod(.catmullRom)
-
-                    if let selectedTime = selectedAltitudeTime,
-                       let selectedPoint = altitudeData.min(by: { abs($0.elapsedTime - selectedTime) < abs($1.elapsedTime - selectedTime) }) {
-                        RuleMark(x: .value("Time", selectedPoint.elapsedTime))
-                            .foregroundStyle(.gray.opacity(0.5))
-                            .lineStyle(StrokeStyle(lineWidth: 1, dash: [5]))
-                            .annotation(position: .top) {
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text(selectedPoint.formattedTime)
+                        AreaMark(
+                            x: .value("Time", point.elapsedTime),
+                            y: .value("Altitude", point.value)
+                        )
+                        .foregroundStyle(.blue.opacity(0.1).gradient)
+                        .interpolationMethod(.catmullRom)
+                    }
+                    .frame(height: 200)
+                    .chartYScale(domain: (minAltitude - padding)...(maxAltitude + padding))
+                    .chartXAxis {
+                        AxisMarks(position: .bottom, values: .stride(by: calculateOptimalXAxisStride(dataPoints: altitudeData))) { value in
+                            if let seconds = value.as(Double.self) {
+                                let minutes = Int(seconds) / 60
+                                let secs = Int(seconds) % 60
+                                AxisValueLabel {
+                                    Text(String(format: "%d:%02d", minutes, secs))
                                         .font(.caption2)
-                                        .foregroundStyle(.secondary)
-                                    Text(String(format: "%.1f m", selectedPoint.value))
-                                        .font(.caption)
-                                        .fontWeight(.semibold)
                                 }
-                                .padding(8)
-                                .background(.ultraThinMaterial)
-                                .cornerRadius(8)
+                                AxisGridLine()
                             }
+                        }
                     }
-                }
-                .frame(height: 200)
-                .chartYScale(domain: (minAltitude - padding)...(maxAltitude + padding))
-                .chartXAxis {
-                    AxisMarks(position: .bottom, values: .stride(by: calculateOptimalXAxisStride(dataPoints: altitudeData))) { value in
-                        if let seconds = value.as(Double.self) {
-                            let minutes = Int(seconds) / 60
-                            let secs = Int(seconds) % 60
-                            AxisValueLabel {
-                                Text(String(format: "%d:%02d", minutes, secs))
-                                    .font(.caption2)
-                            }
+                    .chartYAxis {
+                        AxisMarks(position: .leading, values: .automatic(desiredCount: 5)) { value in
                             AxisGridLine()
-                        }
-                    }
-                }
-                .chartYAxis {
-                    AxisMarks(position: .leading, values: .automatic(desiredCount: 5)) { value in
-                        AxisGridLine()
-                        AxisValueLabel {
-                            if let altitude = value.as(Double.self) {
-                                Text(String(format: "%.0f", altitude))
-                                    .font(.caption2)
+                            AxisValueLabel {
+                                if let altitude = value.as(Double.self) {
+                                    Text(String(format: "%.0f", altitude))
+                                        .font(.caption2)
+                                }
                             }
                         }
                     }
+                    .allowsHitTesting(false)
+                    .padding(.horizontal)
+                    .padding(.vertical, 16)
+                    .background(.ultraThinMaterial)
+                    .cornerRadius(12)
+
+                    Button { showAltitudeChart = true } label: {
+                        Image(systemName: "arrow.up.left.and.arrow.down.right")
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundStyle(.white)
+                            .padding(8)
+                            .background(.ultraThinMaterial)
+                            .clipShape(Circle())
+                            .shadow(radius: 2)
+                    }
+                    .padding(12)
                 }
-                .chartXSelection(value: $selectedAltitudeTime)
-//                .chartPlotStyle { plotArea in
-//                    plotArea.padding(.top, 60)
-//                }
-                .padding(.horizontal)
-                .padding(.vertical, 16)
-                .background(.ultraThinMaterial)
-                .cornerRadius(12)
             }
         }
     }
@@ -649,76 +639,65 @@ struct TrailDetailView: View {
                 }
             }
 
-            Chart(speedChartData) { point in
-                LineMark(
-                    x: .value("Time", point.elapsedTime),
-                    y: .value("Speed", point.value)
-                )
-                .foregroundStyle(.green.gradient)
-                .interpolationMethod(.catmullRom)
+            ZStack(alignment: .topTrailing) {
+                Chart(speedChartData) { point in
+                    LineMark(
+                        x: .value("Time", point.elapsedTime),
+                        y: .value("Speed", point.value)
+                    )
+                    .foregroundStyle(.green.gradient)
+                    .interpolationMethod(.catmullRom)
 
-                AreaMark(
-                    x: .value("Time", point.elapsedTime),
-                    y: .value("Speed", point.value)
-                )
-                .foregroundStyle(.green.opacity(0.1).gradient)
-                .interpolationMethod(.catmullRom)
-
-                if let selectedTime = selectedSpeedTime,
-                   let selectedPoint = speedChartData.min(by: { abs($0.elapsedTime - selectedTime) < abs($1.elapsedTime - selectedTime) }) {
-                    RuleMark(x: .value("Time", selectedPoint.elapsedTime))
-                        .foregroundStyle(.gray.opacity(0.5))
-                        .lineStyle(StrokeStyle(lineWidth: 1, dash: [5]))
-                        .annotation(position: .top) {
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(selectedPoint.formattedTime)
+                    AreaMark(
+                        x: .value("Time", point.elapsedTime),
+                        y: .value("Speed", point.value)
+                    )
+                    .foregroundStyle(.green.opacity(0.1).gradient)
+                    .interpolationMethod(.catmullRom)
+                }
+                .frame(height: 200)
+                .chartYScale(domain: (minSpeed - padding)...(maxSpeed + padding))
+                .chartXAxis {
+                    AxisMarks(position: .bottom, values: .stride(by: calculateOptimalXAxisStride(dataPoints: speedChartData))) { value in
+                        if let seconds = value.as(Double.self) {
+                            let minutes = Int(seconds) / 60
+                            let secs = Int(seconds) % 60
+                            AxisValueLabel {
+                                Text(String(format: "%d:%02d", minutes, secs))
                                     .font(.caption2)
-                                    .foregroundStyle(.secondary)
-                                Text("\(String(format: "%.1f", selectedPoint.value)) \(MeasurementFormatter.speedUnit)")
-                                    .font(.caption)
-                                    .fontWeight(.semibold)
                             }
-                            .padding(8)
-                            .background(.ultraThinMaterial)
-                            .cornerRadius(8)
+                            AxisGridLine()
                         }
+                    }
                 }
-            }
-            .frame(height: 200)
-            .chartScrollableAxes(.horizontal)
-            .chartXVisibleDomain(length: 1800.0)
-            .chartYScale(domain: (minSpeed - padding)...(maxSpeed + padding))
-            .chartXAxis {
-                AxisMarks(position: .bottom, values: .stride(by: 300)) { value in
-                    if let seconds = value.as(Double.self) {
-                        let minutes = Int(seconds) / 60
-                        AxisValueLabel {
-                            Text(String(format: "%d min", minutes))
-                                .font(.caption2)
-                        }
+                .chartYAxis {
+                    AxisMarks(position: .leading, values: .automatic(desiredCount: 5)) { value in
                         AxisGridLine()
-                    }
-                }
-            }
-            .chartYAxis {
-                AxisMarks(position: .leading, values: .automatic(desiredCount: 5)) { value in
-                    AxisGridLine()
-                    AxisValueLabel {
-                        if let speed = value.as(Double.self) {
-                            Text(String(format: "%.0f", speed))
-                                .font(.caption2)
+                        AxisValueLabel {
+                            if let speed = value.as(Double.self) {
+                                Text(String(format: "%.0f", speed))
+                                    .font(.caption2)
+                            }
                         }
                     }
                 }
+                .allowsHitTesting(false)
+                .padding(.horizontal)
+                .padding(.vertical, 16)
+                .background(.ultraThinMaterial)
+                .cornerRadius(12)
+
+                Button { showSpeedChart = true } label: {
+                    Image(systemName: "arrow.up.left.and.arrow.down.right")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(.white)
+                        .padding(8)
+                        .background(.ultraThinMaterial)
+                        .clipShape(Circle())
+                        .shadow(radius: 2)
+                }
+                .padding(12)
             }
-            .chartXSelection(value: $selectedSpeedTime)
-//            .chartPlotStyle { plotArea in
-//                plotArea.padding(.top, 60)
-//            }
-            .padding(.horizontal)
-            .padding(.vertical, 16)
-            .background(.ultraThinMaterial)
-            .cornerRadius(12)
             }
         }
     }
@@ -745,75 +724,65 @@ struct TrailDetailView: View {
                         .help("Lower values indicate better GPS accuracy")
                 }
 
-                Chart(accuracyData) { point in
-                    LineMark(
-                        x: .value("Time", point.elapsedTime),
-                        y: .value("Accuracy", point.value)
-                    )
-                    .foregroundStyle(.orange.gradient)
-                    .interpolationMethod(.catmullRom)
+                ZStack(alignment: .topTrailing) {
+                    Chart(accuracyData) { point in
+                        LineMark(
+                            x: .value("Time", point.elapsedTime),
+                            y: .value("Accuracy", point.value)
+                        )
+                        .foregroundStyle(.orange.gradient)
+                        .interpolationMethod(.catmullRom)
 
-                    AreaMark(
-                        x: .value("Time", point.elapsedTime),
-                        y: .value("Accuracy", point.value)
-                    )
-                    .foregroundStyle(.orange.opacity(0.1).gradient)
-                    .interpolationMethod(.catmullRom)
-
-                    if let selectedTime = selectedAccuracyTime,
-                       let selectedPoint = accuracyData.min(by: { abs($0.elapsedTime - selectedTime) < abs($1.elapsedTime - selectedTime) }) {
-                        RuleMark(x: .value("Time", selectedPoint.elapsedTime))
-                            .foregroundStyle(.gray.opacity(0.5))
-                            .lineStyle(StrokeStyle(lineWidth: 1, dash: [5]))
-                            .annotation(position: .top) {
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text(selectedPoint.formattedTime)
+                        AreaMark(
+                            x: .value("Time", point.elapsedTime),
+                            y: .value("Accuracy", point.value)
+                        )
+                        .foregroundStyle(.orange.opacity(0.1).gradient)
+                        .interpolationMethod(.catmullRom)
+                    }
+                    .frame(height: 200)
+                    .chartYScale(domain: (minAccuracy - padding)...(maxAccuracy + padding))
+                    .chartXAxis {
+                        AxisMarks(position: .bottom, values: .stride(by: calculateOptimalXAxisStride(dataPoints: accuracyData))) { value in
+                            if let seconds = value.as(Double.self) {
+                                let minutes = Int(seconds) / 60
+                                let secs = Int(seconds) % 60
+                                AxisValueLabel {
+                                    Text(String(format: "%d:%02d", minutes, secs))
                                         .font(.caption2)
-                                        .foregroundStyle(.secondary)
-                                    Text(String(format: "±%.1f m", selectedPoint.value))
-                                        .font(.caption)
-                                        .fontWeight(.semibold)
                                 }
-                                .padding(8)
-                                .background(.ultraThinMaterial)
-                                .cornerRadius(8)
+                                AxisGridLine()
                             }
+                        }
                     }
-                }
-                .frame(height: 200)
-                .chartYScale(domain: (minAccuracy - padding)...(maxAccuracy + padding))
-                .chartXAxis {
-                    AxisMarks(position: .bottom, values: .stride(by: calculateOptimalXAxisStride(dataPoints: accuracyData))) { value in
-                        if let seconds = value.as(Double.self) {
-                            let minutes = Int(seconds) / 60
-                            let secs = Int(seconds) % 60
-                            AxisValueLabel {
-                                Text(String(format: "%d:%02d", minutes, secs))
-                                    .font(.caption2)
-                            }
+                    .chartYAxis {
+                        AxisMarks(position: .leading, values: .automatic(desiredCount: 5)) { value in
                             AxisGridLine()
-                        }
-                    }
-                }
-                .chartYAxis {
-                    AxisMarks(position: .leading, values: .automatic(desiredCount: 5)) { value in
-                        AxisGridLine()
-                        AxisValueLabel {
-                            if let accuracy = value.as(Double.self) {
-                                Text(String(format: "%.0f", accuracy))
-                                    .font(.caption2)
+                            AxisValueLabel {
+                                if let accuracy = value.as(Double.self) {
+                                    Text(String(format: "%.0f", accuracy))
+                                        .font(.caption2)
+                                }
                             }
                         }
                     }
+                    .allowsHitTesting(false)
+                    .padding(.horizontal)
+                    .padding(.vertical, 16)
+                    .background(.ultraThinMaterial)
+                    .cornerRadius(12)
+
+                    Button { showAccuracyChart = true } label: {
+                        Image(systemName: "arrow.up.left.and.arrow.down.right")
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundStyle(.white)
+                            .padding(8)
+                            .background(.ultraThinMaterial)
+                            .clipShape(Circle())
+                            .shadow(radius: 2)
+                    }
+                    .padding(12)
                 }
-                .chartXSelection(value: $selectedAccuracyTime)
-//                .chartPlotStyle { plotArea in
-//                    plotArea.padding(.top, 60)
-//                }
-                .padding(.horizontal)
-                .padding(.vertical, 16)
-                .background(.ultraThinMaterial)
-                .cornerRadius(12)
 
                 // Accuracy summary
                 HStack(spacing: 16) {
@@ -2087,7 +2056,21 @@ struct AltitudeChartSheet: View {
                             }
                         }
                         .frame(height: 300)
+                        .chartScrollableAxes(.horizontal)
+                        .chartXVisibleDomain(length: 1800.0)
                         .chartYScale(domain: (minAltitude - padding)...(maxAltitude + padding))
+                        .chartXAxis {
+                            AxisMarks(position: .bottom, values: .stride(by: 300)) { value in
+                                if let seconds = value.as(Double.self) {
+                                    let minutes = Int(seconds) / 60
+                                    AxisValueLabel {
+                                        Text(String(format: "%d min", minutes))
+                                            .font(.caption2)
+                                    }
+                                    AxisGridLine()
+                                }
+                            }
+                        }
                         .chartXSelection(value: $selectedAltitudeTime)
                     }
                     .padding()
@@ -2275,7 +2258,21 @@ struct AccuracyChartSheet: View {
                             }
                         }
                         .frame(height: 300)
+                        .chartScrollableAxes(.horizontal)
+                        .chartXVisibleDomain(length: 1800.0)
                         .chartYScale(domain: (minAccuracy - padding)...(maxAccuracy + padding))
+                        .chartXAxis {
+                            AxisMarks(position: .bottom, values: .stride(by: 300)) { value in
+                                if let seconds = value.as(Double.self) {
+                                    let minutes = Int(seconds) / 60
+                                    AxisValueLabel {
+                                        Text(String(format: "%d min", minutes))
+                                            .font(.caption2)
+                                    }
+                                    AxisGridLine()
+                                }
+                            }
+                        }
                         .chartXSelection(value: $selectedAccuracyTime)
 
                         HStack(spacing: 16) {
