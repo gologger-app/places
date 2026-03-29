@@ -1992,21 +1992,6 @@ struct AltitudeChartSheet: View {
                                 )
                                 .foregroundStyle(.green)
                                 .symbolSize(100)
-                                .annotation(position: .top, spacing: 8) {
-                                    VStack(spacing: 2) {
-                                        Text("↑ Highest")
-                                            .font(.caption2)
-                                            .fontWeight(.semibold)
-                                            .foregroundStyle(.green)
-                                        Text("\(String(format: "%.0f", highestPoint.value)) \(MeasurementFormatter.altitudeUnit)")
-                                            .font(.caption)
-                                            .foregroundStyle(.secondary)
-                                    }
-                                    .padding(.horizontal, 8)
-                                    .padding(.vertical, 4)
-                                    .background(.ultraThinMaterial)
-                                    .cornerRadius(6)
-                                }
                             }
 
                             // Mark lowest point
@@ -2017,21 +2002,6 @@ struct AltitudeChartSheet: View {
                                 )
                                 .foregroundStyle(.orange)
                                 .symbolSize(100)
-                                .annotation(position: .bottom, spacing: 8) {
-                                    VStack(spacing: 2) {
-                                        Text("↓ Lowest")
-                                            .font(.caption2)
-                                            .fontWeight(.semibold)
-                                            .foregroundStyle(.orange)
-                                        Text("\(String(format: "%.0f", lowestPoint.value)) \(MeasurementFormatter.altitudeUnit)")
-                                            .font(.caption)
-                                            .foregroundStyle(.secondary)
-                                    }
-                                    .padding(.horizontal, 8)
-                                    .padding(.vertical, 4)
-                                    .background(.ultraThinMaterial)
-                                    .cornerRadius(6)
-                                }
                             }
 
                             // Selection indicator
