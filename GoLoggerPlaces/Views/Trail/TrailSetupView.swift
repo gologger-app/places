@@ -142,7 +142,7 @@ struct TrailSetupView: View {
                 Collection(name: "Day Hike"),
                 Collection(name: "City Tour")
             ],
-            onStart: { _ in }
+            onStart: { _, _ in }
         )
     }
     .modelContainer(for: [Collection.self, Trail.self], inMemory: true)
