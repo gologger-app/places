@@ -685,14 +685,15 @@ struct TrailDetailView: View {
                 }
             }
             .frame(height: 200)
+            .chartScrollableAxes(.horizontal)
+            .chartXVisibleDomain(length: 1800.0)
             .chartYScale(domain: (minSpeed - padding)...(maxSpeed + padding))
             .chartXAxis {
-                AxisMarks(position: .bottom, values: .stride(by: calculateOptimalXAxisStride(dataPoints: speedChartData))) { value in
+                AxisMarks(position: .bottom, values: .stride(by: 300)) { value in
                     if let seconds = value.as(Double.self) {
                         let minutes = Int(seconds) / 60
-                        let secs = Int(seconds) % 60
                         AxisValueLabel {
-                            Text(String(format: "%d:%02d", minutes, secs))
+                            Text(String(format: "%d min", minutes))
                                 .font(.caption2)
                         }
                         AxisGridLine()
@@ -2175,7 +2176,21 @@ struct SpeedChartSheet: View {
                             }
                         }
                         .frame(height: 300)
+                        .chartScrollableAxes(.horizontal)
+                        .chartXVisibleDomain(length: 1800.0)
                         .chartYScale(domain: (minSpeed - padding)...(maxSpeed + padding))
+                        .chartXAxis {
+                            AxisMarks(position: .bottom, values: .stride(by: 300)) { value in
+                                if let seconds = value.as(Double.self) {
+                                    let minutes = Int(seconds) / 60
+                                    AxisValueLabel {
+                                        Text(String(format: "%d min", minutes))
+                                            .font(.caption2)
+                                    }
+                                    AxisGridLine()
+                                }
+                            }
+                        }
                         .chartXSelection(value: $selectedSpeedTime)
                     }
                     .padding()
