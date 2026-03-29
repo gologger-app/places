@@ -183,6 +183,12 @@ class ImportExportManager {
             trail.endAddress = trailExport.endAddress
             trail.createdOn = trailExport.createdOn
             trail.editDate = trailExport.editDate
+
+            // Restore travel mode by name
+            let modeName = trailExport.travelModeRaw
+            let modeDescriptor = FetchDescriptor<TravelMode>(predicate: #Predicate { $0.name == modeName })
+            trail.travelMode = (try? modelContext.fetch(modeDescriptor))?.first
+
             modelContext.insert(trail)
 
             for pointExport in trailExport.points {

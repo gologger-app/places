@@ -975,6 +975,14 @@ struct TrailDetailView: View {
                 }
 
                 // Addresses
+                if let mode = trail.travelMode {
+                    DetailRow(
+                        label: "Travel Mode",
+                        value: mode.name,
+                        icon: mode.icon
+                    )
+                }
+
                 if let startAddress = trail.startAddress {
                     DetailRow(
                         label: "Start Location",

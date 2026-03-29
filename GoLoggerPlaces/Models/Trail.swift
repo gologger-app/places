@@ -37,6 +37,9 @@ final class Trail {
     @Relationship(deleteRule: .cascade, inverse: \Link.trail)
     var links: [Link] = []
 
+    // Optional travel mode — nullified if the TravelMode is deleted
+    var travelMode: TravelMode?
+
     init(
         hexColor: String? = nil
     ) {

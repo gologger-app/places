@@ -1,15 +1,17 @@
 import SwiftUI
 import SwiftData
 
-/// Pre-recording setup sheet for selecting collection
+/// Pre-recording setup sheet for selecting collection and travel mode
 struct TrailSetupView: View {
     let collections: [Collection]
-    let onStart: ([Collection]) -> Void
+    let onStart: ([Collection], TravelMode?) -> Void
 
     @Environment(\.dismiss) private var dismiss
 
     @State private var selectedCollections: [Collection] = []
     @State private var showCollectionSelectionSheet = false
+    @State private var selectedMode: TravelMode? = nil
+    @State private var showModePicker = false
 
     var body: some View {
         Form {
@@ -60,6 +62,35 @@ struct TrailSetupView: View {
             }
 
             Section {
+                Button(action: { showModePicker = true }) {
+                    HStack(spacing: 12) {
+                        Image(systemName: selectedMode?.icon ?? "figure.walk")
+                            .foregroundStyle(selectedMode != nil ? Color.blue : Color.secondary)
+                            .frame(width: 24)
+
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Travel Mode")
+                                .foregroundStyle(.primary)
+                            Text(selectedMode?.name ?? "None (Optional)")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+
+                        Spacer()
+
+                        Image(systemName: "chevron.right")
+                            .foregroundStyle(.tertiary)
+                            .font(.caption)
+                    }
+                    .padding(.vertical, 4)
+                }
+            } header: {
+                Text("Travel Mode (Optional)")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            Section {
                 Button(action: startRecording) {
                     HStack {
                         Spacer()
@@ -79,6 +110,9 @@ struct TrailSetupView: View {
                 }
             }
         }
+        .sheet(isPresented: $showModePicker) {
+            TravelModePicker(selectedMode: $selectedMode)
+        }
         .sheet(isPresented: $showCollectionSelectionSheet) {
             NavigationStack {
                 CollectionSelectionSheet(
@@ -95,13 +129,7 @@ struct TrailSetupView: View {
     // MARK: - Actions
 
     private func startRecording() {
-        if selectedCollections.isEmpty {
-            print("ℹ️ No collections selected - recording trail without collections")
-        } else {
-            print("✅ Using \(selectedCollections.count) collection(s): \(selectedCollections.map { $0.name }.joined(separator: ", "))")
-        }
-
-        onStart(selectedCollections)
+        onStart(selectedCollections, selectedMode)
         dismiss()
     }
 }

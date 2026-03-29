@@ -292,7 +292,7 @@ extension Trail {
             notes: notes,
             startAddress: startAddress,
             endAddress: endAddress,
-            travelModeRaw: "walking",  // Default for backward compatibility
+            travelModeRaw: travelMode?.name ?? "walking",
             totalDistance: totalDistance,
             actualDuration: actualDuration,
             startTime: startTime,

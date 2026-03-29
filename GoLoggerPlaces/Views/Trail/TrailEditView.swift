@@ -8,6 +8,7 @@ struct TrailEditView: View {
 
     @Bindable var trail: Trail
     @State private var showTrimSheet = false
+    @State private var showModePicker = false
 
     var body: some View {
         Form {
@@ -167,6 +168,31 @@ struct TrailEditView: View {
                 Text("Trail Information")
             }
 
+            // Travel Mode Section
+            Section {
+                Button(action: { showModePicker = true }) {
+                    HStack(spacing: 12) {
+                        Image(systemName: trail.travelMode?.icon ?? "minus.circle")
+                            .foregroundStyle(trail.travelMode != nil ? Color.blue : Color.secondary)
+                            .frame(width: 24)
+
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(trail.travelMode?.name ?? "None")
+                                .foregroundStyle(.primary)
+                        }
+
+                        Spacer()
+
+                        Image(systemName: "chevron.right")
+                            .foregroundStyle(.tertiary)
+                            .font(.caption)
+                    }
+                }
+                .buttonStyle(.plain)
+            } header: {
+                Text("Travel Mode")
+            }
+
             // Trim Section
             Section {
                 Button {
@@ -200,6 +226,15 @@ struct TrailEditView: View {
             TrailTrimView(trail: trail, onTrimComplete: {
                 // Refresh view after trimming
             })
+        }
+        .sheet(isPresented: $showModePicker) {
+            TravelModePicker(selectedMode: Binding(
+                get: { trail.travelMode },
+                set: { newMode in
+                    trail.travelMode = newMode
+                    trail.editDate = Date()
+                }
+            ))
         }
     }
 }

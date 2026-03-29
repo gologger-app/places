@@ -46,8 +46,8 @@ class TrailRecordingViewModel: ObservableObject {
 
     // MARK: - Recording Control
 
-    /// Start recording a trail (optionally for collections)
-    func startRecording(collections: [Collection]) {
+    /// Start recording a trail (optionally for collections and with a travel mode)
+    func startRecording(collections: [Collection], travelMode: TravelMode? = nil) {
         guard !isRecording else { return }
 
         currentCollections = collections
@@ -80,6 +80,7 @@ class TrailRecordingViewModel: ObservableObject {
 
         // Create and persist the trail immediately so data is safe from crashes
         let trail = Trail()
+        trail.travelMode = travelMode
         for collection in collections {
             collection.addTrail(trail)
         }
