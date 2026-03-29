@@ -628,14 +628,23 @@ struct TrailDetailView: View {
 
                 Spacer()
 
-                // Show min/max values
                 VStack(alignment: .trailing, spacing: 2) {
-                    Text("↑ \(String(format: "%.1f", maxSpeed)) \(MeasurementFormatter.speedUnit)")
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                    Text("↓ \(String(format: "%.1f", minSpeed)) \(MeasurementFormatter.speedUnit)")
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
+                    HStack(spacing: 4) {
+                        Circle()
+                            .fill(.green)
+                            .frame(width: 8, height: 8)
+                        Text("↑ \(String(format: "%.1f", maxSpeed)) \(MeasurementFormatter.speedUnit)")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
+                    HStack(spacing: 4) {
+                        Circle()
+                            .fill(.orange)
+                            .frame(width: 8, height: 8)
+                        Text("↓ \(String(format: "%.1f", minSpeed)) \(MeasurementFormatter.speedUnit)")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
                 }
             }
 
@@ -2094,12 +2103,22 @@ struct SpeedChartSheet: View {
                             Spacer()
 
                             VStack(alignment: .trailing, spacing: 2) {
-                                Text("↑ \(String(format: "%.1f", maxSpeed)) \(MeasurementFormatter.speedUnit)")
-                                    .font(.caption2)
-                                    .foregroundStyle(.secondary)
-                                Text("↓ \(String(format: "%.1f", minSpeed)) \(MeasurementFormatter.speedUnit)")
-                                    .font(.caption2)
-                                    .foregroundStyle(.secondary)
+                                HStack(spacing: 4) {
+                                    Circle()
+                                        .fill(.green)
+                                        .frame(width: 8, height: 8)
+                                    Text("↑ \(String(format: "%.1f", maxSpeed)) \(MeasurementFormatter.speedUnit)")
+                                        .font(.caption2)
+                                        .foregroundStyle(.secondary)
+                                }
+                                HStack(spacing: 4) {
+                                    Circle()
+                                        .fill(.orange)
+                                        .frame(width: 8, height: 8)
+                                    Text("↓ \(String(format: "%.1f", minSpeed)) \(MeasurementFormatter.speedUnit)")
+                                        .font(.caption2)
+                                        .foregroundStyle(.secondary)
+                                }
                             }
                         }
 
@@ -2117,6 +2136,24 @@ struct SpeedChartSheet: View {
                             )
                             .foregroundStyle(.green.opacity(0.1).gradient)
                             .interpolationMethod(.catmullRom)
+
+                            if let fastestPoint = speedChartData.max(by: { $0.value < $1.value }) {
+                                PointMark(
+                                    x: .value("Time", fastestPoint.elapsedTime),
+                                    y: .value("Speed", fastestPoint.value)
+                                )
+                                .foregroundStyle(.green)
+                                .symbolSize(100)
+                            }
+
+                            if let slowestPoint = speedChartData.min(by: { $0.value < $1.value }) {
+                                PointMark(
+                                    x: .value("Time", slowestPoint.elapsedTime),
+                                    y: .value("Speed", slowestPoint.value)
+                                )
+                                .foregroundStyle(.orange)
+                                .symbolSize(100)
+                            }
 
                             if let selectedTime = selectedSpeedTime,
                                let selectedPoint = speedChartData.min(by: { abs($0.elapsedTime - selectedTime) < abs($1.elapsedTime - selectedTime) }) {
