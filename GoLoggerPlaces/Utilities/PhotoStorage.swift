@@ -1,6 +1,7 @@
 import UIKit
 import Foundation
 import ImageIO
+import CoreLocation
 
 enum PhotoStorage {
     static let maxPhotoBytes = 512_000
@@ -63,6 +64,25 @@ enum PhotoStorage {
     }
 
     // MARK: - EXIF
+
+    /// Extracts GPS coordinates from JPEG/HEIC EXIF metadata.
+    /// Returns nil if the metadata is absent or the image has no GPS tag.
+    static func location(from data: Data) -> CLLocationCoordinate2D? {
+        guard
+            let source = CGImageSourceCreateWithData(data as CFData, nil),
+            let properties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any],
+            let gps = properties[kCGImagePropertyGPSDictionary] as? [CFString: Any],
+            let lat = gps[kCGImagePropertyGPSLatitude] as? Double,
+            let lon = gps[kCGImagePropertyGPSLongitude] as? Double
+        else { return nil }
+
+        let latRef = gps[kCGImagePropertyGPSLatitudeRef] as? String ?? "N"
+        let lonRef = gps[kCGImagePropertyGPSLongitudeRef] as? String ?? "E"
+        return CLLocationCoordinate2D(
+            latitude: latRef == "S" ? -lat : lat,
+            longitude: lonRef == "W" ? -lon : lon
+        )
+    }
 
     /// Extracts the original capture datetime from JPEG/HEIC EXIF metadata.
     /// Returns nil if the metadata is absent or unparseable.

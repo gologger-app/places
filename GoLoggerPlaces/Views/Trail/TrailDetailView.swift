@@ -38,6 +38,7 @@ struct TrailDetailView: View {
     @State private var showAltitudeChart = false
     @State private var showSpeedChart = false
     @State private var showAccuracyChart = false
+    @State private var showAddWaypoint = false
     @State private var showShareSheet = false
     @State private var shareURL: URL?
 
@@ -200,6 +201,9 @@ struct TrailDetailView: View {
             if let url = shareURL {
                 ShareSheet(items: [url])
             }
+        }
+        .sheet(isPresented: $showAddWaypoint) {
+            WaypointAddSheet(trail: trail)
         }
     }
 
@@ -879,6 +883,15 @@ struct TrailDetailView: View {
                 Text("\(trail.waypoints.count)")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
+
+                Button {
+                    showAddWaypoint = true
+                } label: {
+                    Image(systemName: "plus.circle.fill")
+                        .foregroundStyle(.blue)
+                        .font(.title3)
+                }
+                .buttonStyle(.plain)
             }
 
             if trail.waypoints.isEmpty {
