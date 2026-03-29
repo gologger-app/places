@@ -1958,12 +1958,22 @@ struct AltitudeChartSheet: View {
                             Spacer()
 
                             VStack(alignment: .trailing, spacing: 2) {
-                                Text("↑ \(String(format: "%.0f", maxAltitude)) \(MeasurementFormatter.altitudeUnit)")
-                                    .font(.caption2)
-                                    .foregroundStyle(.secondary)
-                                Text("↓ \(String(format: "%.0f", minAltitude)) \(MeasurementFormatter.altitudeUnit)")
-                                    .font(.caption2)
-                                    .foregroundStyle(.secondary)
+                                HStack(spacing: 4) {
+                                    Circle()
+                                        .fill(.green)
+                                        .frame(width: 8, height: 8)
+                                    Text("↑ \(String(format: "%.0f", maxAltitude)) \(MeasurementFormatter.altitudeUnit)")
+                                        .font(.caption2)
+                                        .foregroundStyle(.secondary)
+                                }
+                                HStack(spacing: 4) {
+                                    Circle()
+                                        .fill(.orange)
+                                        .frame(width: 8, height: 8)
+                                    Text("↓ \(String(format: "%.0f", minAltitude)) \(MeasurementFormatter.altitudeUnit)")
+                                        .font(.caption2)
+                                        .foregroundStyle(.secondary)
+                                }
                             }
                         }
 
